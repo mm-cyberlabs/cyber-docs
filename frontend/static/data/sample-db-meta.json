@@ -1,0 +1,1674 @@
+{
+  "schemas": [
+    {
+      "name": "user_management",
+      "tables": [
+        {
+          "name": "users",
+          "type": "BASE TABLE",
+          "comment": "Core user accounts and profile information",
+          "columns": [
+            {
+              "name": "id",
+              "position": 1,
+              "dataType": "integer",
+              "udtName": "int4",
+              "maxLength": null,
+              "precision": 32,
+              "scale": 0,
+              "nullable": false,
+              "defaultValue": "nextval('user_management.users_id_seq'::regclass)",
+              "comment": null,
+              "isPrimaryKey": true
+            },
+            {
+              "name": "user_uuid",
+              "position": 2,
+              "dataType": "character varying",
+              "udtName": "varchar",
+              "maxLength": 36,
+              "precision": null,
+              "scale": null,
+              "nullable": false,
+              "defaultValue": null,
+              "comment": "Unique identifier for external references",
+              "isPrimaryKey": false
+            },
+            {
+              "name": "email",
+              "position": 3,
+              "dataType": "character varying",
+              "udtName": "varchar",
+              "maxLength": 255,
+              "precision": null,
+              "scale": null,
+              "nullable": false,
+              "defaultValue": null,
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "username",
+              "position": 4,
+              "dataType": "character varying",
+              "udtName": "varchar",
+              "maxLength": 50,
+              "precision": null,
+              "scale": null,
+              "nullable": false,
+              "defaultValue": null,
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "first_name",
+              "position": 5,
+              "dataType": "character varying",
+              "udtName": "varchar",
+              "maxLength": 100,
+              "precision": null,
+              "scale": null,
+              "nullable": false,
+              "defaultValue": null,
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "last_name",
+              "position": 6,
+              "dataType": "character varying",
+              "udtName": "varchar",
+              "maxLength": 100,
+              "precision": null,
+              "scale": null,
+              "nullable": false,
+              "defaultValue": null,
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "phone",
+              "position": 7,
+              "dataType": "character varying",
+              "udtName": "varchar",
+              "maxLength": 20,
+              "precision": null,
+              "scale": null,
+              "nullable": true,
+              "defaultValue": null,
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "is_active",
+              "position": 8,
+              "dataType": "boolean",
+              "udtName": "bool",
+              "maxLength": null,
+              "precision": null,
+              "scale": null,
+              "nullable": false,
+              "defaultValue": "true",
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "created_at",
+              "position": 9,
+              "dataType": "timestamp without time zone",
+              "udtName": "timestamp",
+              "maxLength": null,
+              "precision": null,
+              "scale": null,
+              "nullable": false,
+              "defaultValue": "now()",
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "updated_at",
+              "position": 10,
+              "dataType": "timestamp without time zone",
+              "udtName": "timestamp",
+              "maxLength": null,
+              "precision": null,
+              "scale": null,
+              "nullable": true,
+              "defaultValue": null,
+              "comment": null,
+              "isPrimaryKey": false
+            }
+          ],
+          "primaryKey": ["id"],
+          "indexes": [
+            {
+              "name": "idx_users_email",
+              "definition": "CREATE UNIQUE INDEX idx_users_email ON user_management.users USING btree (email)",
+              "unique": true
+            },
+            {
+              "name": "idx_users_username",
+              "definition": "CREATE UNIQUE INDEX idx_users_username ON user_management.users USING btree (username)",
+              "unique": true
+            },
+            {
+              "name": "idx_users_uuid",
+              "definition": "CREATE UNIQUE INDEX idx_users_uuid ON user_management.users USING btree (user_uuid)",
+              "unique": true
+            }
+          ],
+          "constraints": [
+            {
+              "name": "users_email_key",
+              "type": "UNIQUE",
+              "definition": null
+            },
+            {
+              "name": "users_username_key",
+              "type": "UNIQUE",
+              "definition": null
+            }
+          ]
+        },
+        {
+          "name": "user_roles",
+          "type": "BASE TABLE",
+          "comment": "User role assignments for authorization",
+          "columns": [
+            {
+              "name": "id",
+              "position": 1,
+              "dataType": "integer",
+              "udtName": "int4",
+              "maxLength": null,
+              "precision": 32,
+              "scale": 0,
+              "nullable": false,
+              "defaultValue": "nextval('user_management.user_roles_id_seq'::regclass)",
+              "comment": null,
+              "isPrimaryKey": true
+            },
+            {
+              "name": "user_id",
+              "position": 2,
+              "dataType": "integer",
+              "udtName": "int4",
+              "maxLength": null,
+              "precision": 32,
+              "scale": 0,
+              "nullable": false,
+              "defaultValue": null,
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "role_id",
+              "position": 3,
+              "dataType": "integer",
+              "udtName": "int4",
+              "maxLength": null,
+              "precision": 32,
+              "scale": 0,
+              "nullable": false,
+              "defaultValue": null,
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "assigned_at",
+              "position": 4,
+              "dataType": "timestamp without time zone",
+              "udtName": "timestamp",
+              "maxLength": null,
+              "precision": null,
+              "scale": null,
+              "nullable": false,
+              "defaultValue": "now()",
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "assigned_by",
+              "position": 5,
+              "dataType": "integer",
+              "udtName": "int4",
+              "maxLength": null,
+              "precision": 32,
+              "scale": 0,
+              "nullable": false,
+              "defaultValue": null,
+              "comment": null,
+              "isPrimaryKey": false
+            }
+          ],
+          "primaryKey": ["id"],
+          "indexes": [
+            {
+              "name": "idx_user_roles_user_role",
+              "definition": "CREATE UNIQUE INDEX idx_user_roles_user_role ON user_management.user_roles USING btree (user_id, role_id)",
+              "unique": true
+            }
+          ],
+          "constraints": [
+            {
+              "name": "user_roles_user_id_role_id_key",
+              "type": "UNIQUE",
+              "definition": null
+            }
+          ]
+        },
+        {
+          "name": "roles",
+          "type": "BASE TABLE",
+          "comment": "System roles and permissions",
+          "columns": [
+            {
+              "name": "id",
+              "position": 1,
+              "dataType": "integer",
+              "udtName": "int4",
+              "maxLength": null,
+              "precision": 32,
+              "scale": 0,
+              "nullable": false,
+              "defaultValue": "nextval('user_management.roles_id_seq'::regclass)",
+              "comment": null,
+              "isPrimaryKey": true
+            },
+            {
+              "name": "name",
+              "position": 2,
+              "dataType": "character varying",
+              "udtName": "varchar",
+              "maxLength": 50,
+              "precision": null,
+              "scale": null,
+              "nullable": false,
+              "defaultValue": null,
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "description",
+              "position": 3,
+              "dataType": "text",
+              "udtName": "text",
+              "maxLength": null,
+              "precision": null,
+              "scale": null,
+              "nullable": true,
+              "defaultValue": null,
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "permissions",
+              "position": 4,
+              "dataType": "jsonb",
+              "udtName": "jsonb",
+              "maxLength": null,
+              "precision": null,
+              "scale": null,
+              "nullable": true,
+              "defaultValue": null,
+              "comment": "JSON array of permission strings",
+              "isPrimaryKey": false
+            },
+            {
+              "name": "is_system_role",
+              "position": 5,
+              "dataType": "boolean",
+              "udtName": "bool",
+              "maxLength": null,
+              "precision": null,
+              "scale": null,
+              "nullable": false,
+              "defaultValue": "false",
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "created_at",
+              "position": 6,
+              "dataType": "timestamp without time zone",
+              "udtName": "timestamp",
+              "maxLength": null,
+              "precision": null,
+              "scale": null,
+              "nullable": false,
+              "defaultValue": "now()",
+              "comment": null,
+              "isPrimaryKey": false
+            }
+          ],
+          "primaryKey": ["id"],
+          "indexes": [
+            {
+              "name": "idx_roles_name",
+              "definition": "CREATE UNIQUE INDEX idx_roles_name ON user_management.roles USING btree (name)",
+              "unique": true
+            }
+          ],
+          "constraints": [
+            {
+              "name": "roles_name_key",
+              "type": "UNIQUE",
+              "definition": null
+            }
+          ]
+        },
+        {
+          "name": "user_sessions",
+          "type": "BASE TABLE",
+          "comment": "Active user sessions and authentication tokens",
+          "columns": [
+            {
+              "name": "id",
+              "position": 1,
+              "dataType": "character varying",
+              "udtName": "varchar",
+              "maxLength": 128,
+              "precision": null,
+              "scale": null,
+              "nullable": false,
+              "defaultValue": null,
+              "comment": "Session token/ID",
+              "isPrimaryKey": true
+            },
+            {
+              "name": "user_id",
+              "position": 2,
+              "dataType": "integer",
+              "udtName": "int4",
+              "maxLength": null,
+              "precision": 32,
+              "scale": 0,
+              "nullable": false,
+              "defaultValue": null,
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "ip_address",
+              "position": 3,
+              "dataType": "inet",
+              "udtName": "inet",
+              "maxLength": null,
+              "precision": null,
+              "scale": null,
+              "nullable": true,
+              "defaultValue": null,
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "user_agent",
+              "position": 4,
+              "dataType": "text",
+              "udtName": "text",
+              "maxLength": null,
+              "precision": null,
+              "scale": null,
+              "nullable": true,
+              "defaultValue": null,
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "created_at",
+              "position": 5,
+              "dataType": "timestamp without time zone",
+              "udtName": "timestamp",
+              "maxLength": null,
+              "precision": null,
+              "scale": null,
+              "nullable": false,
+              "defaultValue": "now()",
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "expires_at",
+              "position": 6,
+              "dataType": "timestamp without time zone",
+              "udtName": "timestamp",
+              "maxLength": null,
+              "precision": null,
+              "scale": null,
+              "nullable": false,
+              "defaultValue": null,
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "last_activity",
+              "position": 7,
+              "dataType": "timestamp without time zone",
+              "udtName": "timestamp",
+              "maxLength": null,
+              "precision": null,
+              "scale": null,
+              "nullable": false,
+              "defaultValue": "now()",
+              "comment": null,
+              "isPrimaryKey": false
+            }
+          ],
+          "primaryKey": ["id"],
+          "indexes": [
+            {
+              "name": "idx_user_sessions_user_id",
+              "definition": "CREATE INDEX idx_user_sessions_user_id ON user_management.user_sessions USING btree (user_id)",
+              "unique": false
+            },
+            {
+              "name": "idx_user_sessions_expires",
+              "definition": "CREATE INDEX idx_user_sessions_expires ON user_management.user_sessions USING btree (expires_at)",
+              "unique": false
+            }
+          ],
+          "constraints": []
+        }
+      ]
+    },
+    {
+      "name": "ecommerce",
+      "tables": [
+        {
+          "name": "categories",
+          "type": "BASE TABLE",
+          "comment": "Product categories and hierarchical structure",
+          "columns": [
+            {
+              "name": "id",
+              "position": 1,
+              "dataType": "integer",
+              "udtName": "int4",
+              "maxLength": null,
+              "precision": 32,
+              "scale": 0,
+              "nullable": false,
+              "defaultValue": "nextval('ecommerce.categories_id_seq'::regclass)",
+              "comment": null,
+              "isPrimaryKey": true
+            },
+            {
+              "name": "name",
+              "position": 2,
+              "dataType": "character varying",
+              "udtName": "varchar",
+              "maxLength": 100,
+              "precision": null,
+              "scale": null,
+              "nullable": false,
+              "defaultValue": null,
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "slug",
+              "position": 3,
+              "dataType": "character varying",
+              "udtName": "varchar",
+              "maxLength": 100,
+              "precision": null,
+              "scale": null,
+              "nullable": false,
+              "defaultValue": null,
+              "comment": "URL-friendly identifier",
+              "isPrimaryKey": false
+            },
+            {
+              "name": "parent_id",
+              "position": 4,
+              "dataType": "integer",
+              "udtName": "int4",
+              "maxLength": null,
+              "precision": 32,
+              "scale": 0,
+              "nullable": true,
+              "defaultValue": null,
+              "comment": "Self-referencing for hierarchical structure",
+              "isPrimaryKey": false
+            },
+            {
+              "name": "description",
+              "position": 5,
+              "dataType": "text",
+              "udtName": "text",
+              "maxLength": null,
+              "precision": null,
+              "scale": null,
+              "nullable": true,
+              "defaultValue": null,
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "image_url",
+              "position": 6,
+              "dataType": "character varying",
+              "udtName": "varchar",
+              "maxLength": 500,
+              "precision": null,
+              "scale": null,
+              "nullable": true,
+              "defaultValue": null,
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "is_active",
+              "position": 7,
+              "dataType": "boolean",
+              "udtName": "bool",
+              "maxLength": null,
+              "precision": null,
+              "scale": null,
+              "nullable": false,
+              "defaultValue": "true",
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "created_at",
+              "position": 8,
+              "dataType": "timestamp without time zone",
+              "udtName": "timestamp",
+              "maxLength": null,
+              "precision": null,
+              "scale": null,
+              "nullable": false,
+              "defaultValue": "now()",
+              "comment": null,
+              "isPrimaryKey": false
+            }
+          ],
+          "primaryKey": ["id"],
+          "indexes": [
+            {
+              "name": "idx_categories_slug",
+              "definition": "CREATE UNIQUE INDEX idx_categories_slug ON ecommerce.categories USING btree (slug)",
+              "unique": true
+            },
+            {
+              "name": "idx_categories_parent",
+              "definition": "CREATE INDEX idx_categories_parent ON ecommerce.categories USING btree (parent_id)",
+              "unique": false
+            }
+          ],
+          "constraints": [
+            {
+              "name": "categories_slug_key",
+              "type": "UNIQUE",
+              "definition": null
+            }
+          ]
+        },
+        {
+          "name": "products",
+          "type": "BASE TABLE",
+          "comment": "Product catalog and inventory",
+          "columns": [
+            {
+              "name": "id",
+              "position": 1,
+              "dataType": "integer",
+              "udtName": "int4",
+              "maxLength": null,
+              "precision": 32,
+              "scale": 0,
+              "nullable": false,
+              "defaultValue": "nextval('ecommerce.products_id_seq'::regclass)",
+              "comment": null,
+              "isPrimaryKey": true
+            },
+            {
+              "name": "sku",
+              "position": 2,
+              "dataType": "character varying",
+              "udtName": "varchar",
+              "maxLength": 50,
+              "precision": null,
+              "scale": null,
+              "nullable": false,
+              "defaultValue": null,
+              "comment": "Stock Keeping Unit",
+              "isPrimaryKey": false
+            },
+            {
+              "name": "name",
+              "position": 3,
+              "dataType": "character varying",
+              "udtName": "varchar",
+              "maxLength": 200,
+              "precision": null,
+              "scale": null,
+              "nullable": false,
+              "defaultValue": null,
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "description",
+              "position": 4,
+              "dataType": "text",
+              "udtName": "text",
+              "maxLength": null,
+              "precision": null,
+              "scale": null,
+              "nullable": true,
+              "defaultValue": null,
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "category_id",
+              "position": 5,
+              "dataType": "integer",
+              "udtName": "int4",
+              "maxLength": null,
+              "precision": 32,
+              "scale": 0,
+              "nullable": false,
+              "defaultValue": null,
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "price",
+              "position": 6,
+              "dataType": "numeric",
+              "udtName": "numeric",
+              "maxLength": null,
+              "precision": 10,
+              "scale": 2,
+              "nullable": false,
+              "defaultValue": null,
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "cost",
+              "position": 7,
+              "dataType": "numeric",
+              "udtName": "numeric",
+              "maxLength": null,
+              "precision": 10,
+              "scale": 2,
+              "nullable": true,
+              "defaultValue": null,
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "stock_quantity",
+              "position": 8,
+              "dataType": "integer",
+              "udtName": "int4",
+              "maxLength": null,
+              "precision": 32,
+              "scale": 0,
+              "nullable": false,
+              "defaultValue": "0",
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "weight_kg",
+              "position": 9,
+              "dataType": "numeric",
+              "udtName": "numeric",
+              "maxLength": null,
+              "precision": 8,
+              "scale": 3,
+              "nullable": true,
+              "defaultValue": null,
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "is_active",
+              "position": 10,
+              "dataType": "boolean",
+              "udtName": "bool",
+              "maxLength": null,
+              "precision": null,
+              "scale": null,
+              "nullable": false,
+              "defaultValue": "true",
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "created_by",
+              "position": 11,
+              "dataType": "integer",
+              "udtName": "int4",
+              "maxLength": null,
+              "precision": 32,
+              "scale": 0,
+              "nullable": false,
+              "defaultValue": null,
+              "comment": "References user_management.users.id",
+              "isPrimaryKey": false
+            },
+            {
+              "name": "created_at",
+              "position": 12,
+              "dataType": "timestamp without time zone",
+              "udtName": "timestamp",
+              "maxLength": null,
+              "precision": null,
+              "scale": null,
+              "nullable": false,
+              "defaultValue": "now()",
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "updated_at",
+              "position": 13,
+              "dataType": "timestamp without time zone",
+              "udtName": "timestamp",
+              "maxLength": null,
+              "precision": null,
+              "scale": null,
+              "nullable": true,
+              "defaultValue": null,
+              "comment": null,
+              "isPrimaryKey": false
+            }
+          ],
+          "primaryKey": ["id"],
+          "indexes": [
+            {
+              "name": "idx_products_sku",
+              "definition": "CREATE UNIQUE INDEX idx_products_sku ON ecommerce.products USING btree (sku)",
+              "unique": true
+            },
+            {
+              "name": "idx_products_category",
+              "definition": "CREATE INDEX idx_products_category ON ecommerce.products USING btree (category_id)",
+              "unique": false
+            },
+            {
+              "name": "idx_products_name",
+              "definition": "CREATE INDEX idx_products_name ON ecommerce.products USING btree (name)",
+              "unique": false
+            }
+          ],
+          "constraints": [
+            {
+              "name": "products_sku_key",
+              "type": "UNIQUE",
+              "definition": null
+            },
+            {
+              "name": "products_price_positive",
+              "type": "CHECK",
+              "definition": "price >= 0"
+            },
+            {
+              "name": "products_stock_non_negative",
+              "type": "CHECK",
+              "definition": "stock_quantity >= 0"
+            }
+          ]
+        },
+        {
+          "name": "orders",
+          "type": "BASE TABLE",
+          "comment": "Customer orders and purchase history",
+          "columns": [
+            {
+              "name": "id",
+              "position": 1,
+              "dataType": "integer",
+              "udtName": "int4",
+              "maxLength": null,
+              "precision": 32,
+              "scale": 0,
+              "nullable": false,
+              "defaultValue": "nextval('ecommerce.orders_id_seq'::regclass)",
+              "comment": null,
+              "isPrimaryKey": true
+            },
+            {
+              "name": "order_number",
+              "position": 2,
+              "dataType": "character varying",
+              "udtName": "varchar",
+              "maxLength": 50,
+              "precision": null,
+              "scale": null,
+              "nullable": false,
+              "defaultValue": null,
+              "comment": "Human-readable order identifier",
+              "isPrimaryKey": false
+            },
+            {
+              "name": "customer_id",
+              "position": 3,
+              "dataType": "integer",
+              "udtName": "int4",
+              "maxLength": null,
+              "precision": 32,
+              "scale": 0,
+              "nullable": false,
+              "defaultValue": null,
+              "comment": "References user_management.users.id",
+              "isPrimaryKey": false
+            },
+            {
+              "name": "status",
+              "position": 4,
+              "dataType": "character varying",
+              "udtName": "varchar",
+              "maxLength": 20,
+              "precision": null,
+              "scale": null,
+              "nullable": false,
+              "defaultValue": "'pending'",
+              "comment": "pending, processing, shipped, delivered, cancelled",
+              "isPrimaryKey": false
+            },
+            {
+              "name": "subtotal",
+              "position": 5,
+              "dataType": "numeric",
+              "udtName": "numeric",
+              "maxLength": null,
+              "precision": 10,
+              "scale": 2,
+              "nullable": false,
+              "defaultValue": "0",
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "tax_amount",
+              "position": 6,
+              "dataType": "numeric",
+              "udtName": "numeric",
+              "maxLength": null,
+              "precision": 10,
+              "scale": 2,
+              "nullable": false,
+              "defaultValue": "0",
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "shipping_amount",
+              "position": 7,
+              "dataType": "numeric",
+              "udtName": "numeric",
+              "maxLength": null,
+              "precision": 10,
+              "scale": 2,
+              "nullable": false,
+              "defaultValue": "0",
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "total_amount",
+              "position": 8,
+              "dataType": "numeric",
+              "udtName": "numeric",
+              "maxLength": null,
+              "precision": 10,
+              "scale": 2,
+              "nullable": false,
+              "defaultValue": null,
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "shipping_address",
+              "position": 9,
+              "dataType": "jsonb",
+              "udtName": "jsonb",
+              "maxLength": null,
+              "precision": null,
+              "scale": null,
+              "nullable": false,
+              "defaultValue": null,
+              "comment": "JSON object with address details",
+              "isPrimaryKey": false
+            },
+            {
+              "name": "billing_address",
+              "position": 10,
+              "dataType": "jsonb",
+              "udtName": "jsonb",
+              "maxLength": null,
+              "precision": null,
+              "scale": null,
+              "nullable": false,
+              "defaultValue": null,
+              "comment": "JSON object with address details",
+              "isPrimaryKey": false
+            },
+            {
+              "name": "notes",
+              "position": 11,
+              "dataType": "text",
+              "udtName": "text",
+              "maxLength": null,
+              "precision": null,
+              "scale": null,
+              "nullable": true,
+              "defaultValue": null,
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "created_at",
+              "position": 12,
+              "dataType": "timestamp without time zone",
+              "udtName": "timestamp",
+              "maxLength": null,
+              "precision": null,
+              "scale": null,
+              "nullable": false,
+              "defaultValue": "now()",
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "updated_at",
+              "position": 13,
+              "dataType": "timestamp without time zone",
+              "udtName": "timestamp",
+              "maxLength": null,
+              "precision": null,
+              "scale": null,
+              "nullable": true,
+              "defaultValue": null,
+              "comment": null,
+              "isPrimaryKey": false
+            }
+          ],
+          "primaryKey": ["id"],
+          "indexes": [
+            {
+              "name": "idx_orders_number",
+              "definition": "CREATE UNIQUE INDEX idx_orders_number ON ecommerce.orders USING btree (order_number)",
+              "unique": true
+            },
+            {
+              "name": "idx_orders_customer",
+              "definition": "CREATE INDEX idx_orders_customer ON ecommerce.orders USING btree (customer_id)",
+              "unique": false
+            },
+            {
+              "name": "idx_orders_status",
+              "definition": "CREATE INDEX idx_orders_status ON ecommerce.orders USING btree (status)",
+              "unique": false
+            },
+            {
+              "name": "idx_orders_created",
+              "definition": "CREATE INDEX idx_orders_created ON ecommerce.orders USING btree (created_at)",
+              "unique": false
+            }
+          ],
+          "constraints": [
+            {
+              "name": "orders_order_number_key",
+              "type": "UNIQUE",
+              "definition": null
+            },
+            {
+              "name": "orders_amounts_positive",
+              "type": "CHECK",
+              "definition": "subtotal >= 0 AND tax_amount >= 0 AND shipping_amount >= 0 AND total_amount >= 0"
+            }
+          ]
+        },
+        {
+          "name": "order_items",
+          "type": "BASE TABLE",
+          "comment": "Individual items within orders",
+          "columns": [
+            {
+              "name": "id",
+              "position": 1,
+              "dataType": "integer",
+              "udtName": "int4",
+              "maxLength": null,
+              "precision": 32,
+              "scale": 0,
+              "nullable": false,
+              "defaultValue": "nextval('ecommerce.order_items_id_seq'::regclass)",
+              "comment": null,
+              "isPrimaryKey": true
+            },
+            {
+              "name": "order_id",
+              "position": 2,
+              "dataType": "integer",
+              "udtName": "int4",
+              "maxLength": null,
+              "precision": 32,
+              "scale": 0,
+              "nullable": false,
+              "defaultValue": null,
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "product_id",
+              "position": 3,
+              "dataType": "integer",
+              "udtName": "int4",
+              "maxLength": null,
+              "precision": 32,
+              "scale": 0,
+              "nullable": false,
+              "defaultValue": null,
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "quantity",
+              "position": 4,
+              "dataType": "integer",
+              "udtName": "int4",
+              "maxLength": null,
+              "precision": 32,
+              "scale": 0,
+              "nullable": false,
+              "defaultValue": null,
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "unit_price",
+              "position": 5,
+              "dataType": "numeric",
+              "udtName": "numeric",
+              "maxLength": null,
+              "precision": 10,
+              "scale": 2,
+              "nullable": false,
+              "defaultValue": null,
+              "comment": "Price at time of order",
+              "isPrimaryKey": false
+            },
+            {
+              "name": "total_price",
+              "position": 6,
+              "dataType": "numeric",
+              "udtName": "numeric",
+              "maxLength": null,
+              "precision": 10,
+              "scale": 2,
+              "nullable": false,
+              "defaultValue": null,
+              "comment": "quantity * unit_price",
+              "isPrimaryKey": false
+            }
+          ],
+          "primaryKey": ["id"],
+          "indexes": [
+            {
+              "name": "idx_order_items_order",
+              "definition": "CREATE INDEX idx_order_items_order ON ecommerce.order_items USING btree (order_id)",
+              "unique": false
+            },
+            {
+              "name": "idx_order_items_product",
+              "definition": "CREATE INDEX idx_order_items_product ON ecommerce.order_items USING btree (product_id)",
+              "unique": false
+            }
+          ],
+          "constraints": [
+            {
+              "name": "order_items_quantity_positive",
+              "type": "CHECK",
+              "definition": "quantity > 0"
+            },
+            {
+              "name": "order_items_prices_positive",
+              "type": "CHECK",
+              "definition": "unit_price >= 0 AND total_price >= 0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "analytics",
+      "tables": [
+        {
+          "name": "events",
+          "type": "BASE TABLE",
+          "comment": "User behavior and system events tracking",
+          "columns": [
+            {
+              "name": "id",
+              "position": 1,
+              "dataType": "bigint",
+              "udtName": "int8",
+              "maxLength": null,
+              "precision": 64,
+              "scale": 0,
+              "nullable": false,
+              "defaultValue": "nextval('analytics.events_id_seq'::regclass)",
+              "comment": null,
+              "isPrimaryKey": true
+            },
+            {
+              "name": "event_uuid",
+              "position": 2,
+              "dataType": "character varying",
+              "udtName": "varchar",
+              "maxLength": 36,
+              "precision": null,
+              "scale": null,
+              "nullable": false,
+              "defaultValue": null,
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "user_id",
+              "position": 3,
+              "dataType": "integer",
+              "udtName": "int4",
+              "maxLength": null,
+              "precision": 32,
+              "scale": 0,
+              "nullable": true,
+              "defaultValue": null,
+              "comment": "References user_management.users.id",
+              "isPrimaryKey": false
+            },
+            {
+              "name": "session_id",
+              "position": 4,
+              "dataType": "character varying",
+              "udtName": "varchar",
+              "maxLength": 128,
+              "precision": null,
+              "scale": null,
+              "nullable": true,
+              "defaultValue": null,
+              "comment": "References user_management.user_sessions.id",
+              "isPrimaryKey": false
+            },
+            {
+              "name": "event_type",
+              "position": 5,
+              "dataType": "character varying",
+              "udtName": "varchar",
+              "maxLength": 50,
+              "precision": null,
+              "scale": null,
+              "nullable": false,
+              "defaultValue": null,
+              "comment": "page_view, click, purchase, login, etc.",
+              "isPrimaryKey": false
+            },
+            {
+              "name": "event_category",
+              "position": 6,
+              "dataType": "character varying",
+              "udtName": "varchar",
+              "maxLength": 50,
+              "precision": null,
+              "scale": null,
+              "nullable": true,
+              "defaultValue": null,
+              "comment": "user_action, system_event, ecommerce, etc.",
+              "isPrimaryKey": false
+            },
+            {
+              "name": "properties",
+              "position": 7,
+              "dataType": "jsonb",
+              "udtName": "jsonb",
+              "maxLength": null,
+              "precision": null,
+              "scale": null,
+              "nullable": true,
+              "defaultValue": null,
+              "comment": "Event-specific data and metadata",
+              "isPrimaryKey": false
+            },
+            {
+              "name": "url",
+              "position": 8,
+              "dataType": "character varying",
+              "udtName": "varchar",
+              "maxLength": 1000,
+              "precision": null,
+              "scale": null,
+              "nullable": true,
+              "defaultValue": null,
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "referrer",
+              "position": 9,
+              "dataType": "character varying",
+              "udtName": "varchar",
+              "maxLength": 1000,
+              "precision": null,
+              "scale": null,
+              "nullable": true,
+              "defaultValue": null,
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "ip_address",
+              "position": 10,
+              "dataType": "inet",
+              "udtName": "inet",
+              "maxLength": null,
+              "precision": null,
+              "scale": null,
+              "nullable": true,
+              "defaultValue": null,
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "user_agent",
+              "position": 11,
+              "dataType": "text",
+              "udtName": "text",
+              "maxLength": null,
+              "precision": null,
+              "scale": null,
+              "nullable": true,
+              "defaultValue": null,
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "created_at",
+              "position": 12,
+              "dataType": "timestamp without time zone",
+              "udtName": "timestamp",
+              "maxLength": null,
+              "precision": null,
+              "scale": null,
+              "nullable": false,
+              "defaultValue": "now()",
+              "comment": null,
+              "isPrimaryKey": false
+            }
+          ],
+          "primaryKey": ["id"],
+          "indexes": [
+            {
+              "name": "idx_events_uuid",
+              "definition": "CREATE UNIQUE INDEX idx_events_uuid ON analytics.events USING btree (event_uuid)",
+              "unique": true
+            },
+            {
+              "name": "idx_events_user_id",
+              "definition": "CREATE INDEX idx_events_user_id ON analytics.events USING btree (user_id)",
+              "unique": false
+            },
+            {
+              "name": "idx_events_session_id",
+              "definition": "CREATE INDEX idx_events_session_id ON analytics.events USING btree (session_id)",
+              "unique": false
+            },
+            {
+              "name": "idx_events_type_category",
+              "definition": "CREATE INDEX idx_events_type_category ON analytics.events USING btree (event_type, event_category)",
+              "unique": false
+            },
+            {
+              "name": "idx_events_created_at",
+              "definition": "CREATE INDEX idx_events_created_at ON analytics.events USING btree (created_at)",
+              "unique": false
+            }
+          ],
+          "constraints": [
+            {
+              "name": "events_event_uuid_key",
+              "type": "UNIQUE",
+              "definition": null
+            }
+          ]
+        },
+        {
+          "name": "user_metrics",
+          "type": "BASE TABLE",
+          "comment": "Aggregated user behavior metrics and KPIs",
+          "columns": [
+            {
+              "name": "id",
+              "position": 1,
+              "dataType": "integer",
+              "udtName": "int4",
+              "maxLength": null,
+              "precision": 32,
+              "scale": 0,
+              "nullable": false,
+              "defaultValue": "nextval('analytics.user_metrics_id_seq'::regclass)",
+              "comment": null,
+              "isPrimaryKey": true
+            },
+            {
+              "name": "user_id",
+              "position": 2,
+              "dataType": "integer",
+              "udtName": "int4",
+              "maxLength": null,
+              "precision": 32,
+              "scale": 0,
+              "nullable": false,
+              "defaultValue": null,
+              "comment": "References user_management.users.id",
+              "isPrimaryKey": false
+            },
+            {
+              "name": "metric_date",
+              "position": 3,
+              "dataType": "date",
+              "udtName": "date",
+              "maxLength": null,
+              "precision": null,
+              "scale": null,
+              "nullable": false,
+              "defaultValue": null,
+              "comment": "Date for daily aggregations",
+              "isPrimaryKey": false
+            },
+            {
+              "name": "page_views",
+              "position": 4,
+              "dataType": "integer",
+              "udtName": "int4",
+              "maxLength": null,
+              "precision": 32,
+              "scale": 0,
+              "nullable": false,
+              "defaultValue": "0",
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "session_count",
+              "position": 5,
+              "dataType": "integer",
+              "udtName": "int4",
+              "maxLength": null,
+              "precision": 32,
+              "scale": 0,
+              "nullable": false,
+              "defaultValue": "0",
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "total_session_duration_minutes",
+              "position": 6,
+              "dataType": "integer",
+              "udtName": "int4",
+              "maxLength": null,
+              "precision": 32,
+              "scale": 0,
+              "nullable": false,
+              "defaultValue": "0",
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "orders_placed",
+              "position": 7,
+              "dataType": "integer",
+              "udtName": "int4",
+              "maxLength": null,
+              "precision": 32,
+              "scale": 0,
+              "nullable": false,
+              "defaultValue": "0",
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "total_spent",
+              "position": 8,
+              "dataType": "numeric",
+              "udtName": "numeric",
+              "maxLength": null,
+              "precision": 12,
+              "scale": 2,
+              "nullable": false,
+              "defaultValue": "0",
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "last_login_at",
+              "position": 9,
+              "dataType": "timestamp without time zone",
+              "udtName": "timestamp",
+              "maxLength": null,
+              "precision": null,
+              "scale": null,
+              "nullable": true,
+              "defaultValue": null,
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "created_at",
+              "position": 10,
+              "dataType": "timestamp without time zone",
+              "udtName": "timestamp",
+              "maxLength": null,
+              "precision": null,
+              "scale": null,
+              "nullable": false,
+              "defaultValue": "now()",
+              "comment": null,
+              "isPrimaryKey": false
+            },
+            {
+              "name": "updated_at",
+              "position": 11,
+              "dataType": "timestamp without time zone",
+              "udtName": "timestamp",
+              "maxLength": null,
+              "precision": null,
+              "scale": null,
+              "nullable": true,
+              "defaultValue": null,
+              "comment": null,
+              "isPrimaryKey": false
+            }
+          ],
+          "primaryKey": ["id"],
+          "indexes": [
+            {
+              "name": "idx_user_metrics_user_date",
+              "definition": "CREATE UNIQUE INDEX idx_user_metrics_user_date ON analytics.user_metrics USING btree (user_id, metric_date)",
+              "unique": true
+            },
+            {
+              "name": "idx_user_metrics_date",
+              "definition": "CREATE INDEX idx_user_metrics_date ON analytics.user_metrics USING btree (metric_date)",
+              "unique": false
+            }
+          ],
+          "constraints": [
+            {
+              "name": "user_metrics_user_id_metric_date_key",
+              "type": "UNIQUE",
+              "definition": null
+            },
+            {
+              "name": "user_metrics_non_negative",
+              "type": "CHECK",
+              "definition": "page_views >= 0 AND session_count >= 0 AND total_session_duration_minutes >= 0 AND orders_placed >= 0 AND total_spent >= 0"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "name": "user_roles_user_id_fkey",
+      "sourceSchema": "user_management",
+      "sourceTable": "user_roles",
+      "sourceColumn": "user_id",
+      "targetSchema": "user_management",
+      "targetTable": "users",
+      "targetColumn": "id",
+      "updateRule": "CASCADE",
+      "deleteRule": "CASCADE"
+    },
+    {
+      "name": "user_roles_role_id_fkey",
+      "sourceSchema": "user_management",
+      "sourceTable": "user_roles",
+      "sourceColumn": "role_id",
+      "targetSchema": "user_management",
+      "targetTable": "roles",
+      "targetColumn": "id",
+      "updateRule": "CASCADE",
+      "deleteRule": "CASCADE"
+    },
+    {
+      "name": "user_roles_assigned_by_fkey",
+      "sourceSchema": "user_management",
+      "sourceTable": "user_roles",
+      "sourceColumn": "assigned_by",
+      "targetSchema": "user_management",
+      "targetTable": "users",
+      "targetColumn": "id",
+      "updateRule": "NO ACTION",
+      "deleteRule": "SET NULL"
+    },
+    {
+      "name": "user_sessions_user_id_fkey",
+      "sourceSchema": "user_management",
+      "sourceTable": "user_sessions",
+      "sourceColumn": "user_id",
+      "targetSchema": "user_management",
+      "targetTable": "users",
+      "targetColumn": "id",
+      "updateRule": "CASCADE",
+      "deleteRule": "CASCADE"
+    },
+    {
+      "name": "categories_parent_id_fkey",
+      "sourceSchema": "ecommerce",
+      "sourceTable": "categories",
+      "sourceColumn": "parent_id",
+      "targetSchema": "ecommerce",
+      "targetTable": "categories",
+      "targetColumn": "id",
+      "updateRule": "CASCADE",
+      "deleteRule": "SET NULL"
+    },
+    {
+      "name": "products_category_id_fkey",
+      "sourceSchema": "ecommerce",
+      "sourceTable": "products",
+      "sourceColumn": "category_id",
+      "targetSchema": "ecommerce",
+      "targetTable": "categories",
+      "targetColumn": "id",
+      "updateRule": "NO ACTION",
+      "deleteRule": "RESTRICT"
+    },
+    {
+      "name": "products_created_by_fkey",
+      "sourceSchema": "ecommerce",
+      "sourceTable": "products",
+      "sourceColumn": "created_by",
+      "targetSchema": "user_management",
+      "targetTable": "users",
+      "targetColumn": "id",
+      "updateRule": "NO ACTION",
+      "deleteRule": "NO ACTION"
+    },
+    {
+      "name": "orders_customer_id_fkey",
+      "sourceSchema": "ecommerce",
+      "sourceTable": "orders",
+      "sourceColumn": "customer_id",
+      "targetSchema": "user_management",
+      "targetTable": "users",
+      "targetColumn": "id",
+      "updateRule": "NO ACTION",
+      "deleteRule": "NO ACTION"
+    },
+    {
+      "name": "order_items_order_id_fkey",
+      "sourceSchema": "ecommerce",
+      "sourceTable": "order_items",
+      "sourceColumn": "order_id",
+      "targetSchema": "ecommerce",
+      "targetTable": "orders",
+      "targetColumn": "id",
+      "updateRule": "CASCADE",
+      "deleteRule": "CASCADE"
+    },
+    {
+      "name": "order_items_product_id_fkey",
+      "sourceSchema": "ecommerce",
+      "sourceTable": "order_items",
+      "sourceColumn": "product_id",
+      "targetSchema": "ecommerce",
+      "targetTable": "products",
+      "targetColumn": "id",
+      "updateRule": "NO ACTION",
+      "deleteRule": "NO ACTION"
+    },
+    {
+      "name": "events_user_id_fkey",
+      "sourceSchema": "analytics",
+      "sourceTable": "events",
+      "sourceColumn": "user_id",
+      "targetSchema": "user_management",
+      "targetTable": "users",
+      "targetColumn": "id",
+      "updateRule": "SET NULL",
+      "deleteRule": "SET NULL"
+    },
+    {
+      "name": "events_session_id_fkey",
+      "sourceSchema": "analytics",
+      "sourceTable": "events",
+      "sourceColumn": "session_id",
+      "targetSchema": "user_management",
+      "targetTable": "user_sessions",
+      "targetColumn": "id",
+      "updateRule": "SET NULL",
+      "deleteRule": "SET NULL"
+    },
+    {
+      "name": "user_metrics_user_id_fkey",
+      "sourceSchema": "analytics",
+      "sourceTable": "user_metrics",
+      "sourceColumn": "user_id",
+      "targetSchema": "user_management",
+      "targetTable": "users",
+      "targetColumn": "id",
+      "updateRule": "CASCADE",
+      "deleteRule": "CASCADE"
+    }
+  ],
+  "metadata": {
+    "extractedAt": "2025-06-03T22:00:00.000Z",
+    "version": "1.0.0",
+    "database": "sample_complex_system",
+    "totalSchemas": 3,
+    "totalTables": 10,
+    "totalRelationships": 13
+  }
+}

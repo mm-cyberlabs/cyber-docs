@@ -4,27 +4,79 @@
  * work well for content-centric websites.
  */
 
+@import './erd-diagram.css';
+
 /* You can override the default Infima variables here. */
 :root {
-  --ifm-color-primary: #2e8555;
-  --ifm-color-primary-dark: #29784c;
-  --ifm-color-primary-darker: #277148;
-  --ifm-color-primary-darkest: #205d3b;
-  --ifm-color-primary-light: #33925d;
-  --ifm-color-primary-lighter: #359962;
-  --ifm-color-primary-lightest: #3cad6e;
+  /* Main Colors */
+  --ifm-color-primary: #00185A;
+  --ifm-color-primary-dark: #001449;
+  --ifm-color-primary-darker: #001340;
+  --ifm-color-primary-darkest: #001034;
+  --ifm-color-primary-light: #001c6b;
+  --ifm-color-primary-lighter: #001d74;
+  --ifm-color-primary-lightest: #00208f;
+  
+  /* Accent Colors */
+  --ifm-color-secondary: #0066CC;
+  --ifm-color-secondary-dark: #005bb8;
+  --ifm-color-secondary-darker: #0055ad;
+  --ifm-color-secondary-darkest: #00468f;
+  --ifm-color-secondary-light: #1a71d6;
+  --ifm-color-secondary-lighter: #2677db;
+  --ifm-color-secondary-lightest: #4d88e5;
+  
+  /* Warning/Info Color */
+  --ifm-color-warning: #FDB92C;
+  --ifm-color-warning-dark: #fcb015;
+  --ifm-color-warning-darker: #fca909;
+  --ifm-color-warning-darkest: #df9008;
+  --ifm-color-warning-light: #fdc243;
+  --ifm-color-warning-lighter: #fdc54f;
+  --ifm-color-warning-lightest: #fed077;
+  
+  /* Background Colors */
+  --ifm-background-color: #FFF;
+  --ifm-background-surface-color: #E6E6E6;
+  --ifm-card-background-color: #E6E6E6;
+  
   --ifm-code-font-size: 95%;
-  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+  --docusaurus-highlighted-code-line-bg: rgba(0, 24, 90, 0.1);
 }
 
-/* For readability concerns, you should choose a lighter palette in dark mode. */
+/* Dark theme adjustments */
 [data-theme='dark'] {
-  --ifm-color-primary: #25c2a0;
-  --ifm-color-primary-dark: #21af90;
-  --ifm-color-primary-darker: #1fa588;
-  --ifm-color-primary-darkest: #1a8870;
-  --ifm-color-primary-light: #29d5b0;
-  --ifm-color-primary-lighter: #32d8b4;
-  --ifm-color-primary-lightest: #4fddbf;
-  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+  /* Lighter primary colors for dark theme */
+  --ifm-color-primary: #4d88e5;
+  --ifm-color-primary-dark: #3d7ee0;
+  --ifm-color-primary-darker: #3377de;
+  --ifm-color-primary-darkest: #1a6bd8;
+  --ifm-color-primary-light: #5d92ea;
+  --ifm-color-primary-lighter: #6799ec;
+  --ifm-color-primary-lightest: #81aaf0;
+  
+  /* Accent colors adjusted for dark theme */
+  --ifm-color-secondary: #66aaff;
+  --ifm-color-secondary-dark: #4d99ff;
+  --ifm-color-secondary-darker: #3d8fff;
+  --ifm-color-secondary-darkest: #0066ff;
+  --ifm-color-secondary-light: #80bbff;
+  --ifm-color-secondary-lighter: #8ac2ff;
+  --ifm-color-secondary-lightest: #add5ff;
+  
+  /* Warning color stays bright for visibility */
+  --ifm-color-warning: #FDB92C;
+  --ifm-color-warning-dark: #fcb015;
+  --ifm-color-warning-darker: #fca909;
+  --ifm-color-warning-darkest: #df9008;
+  --ifm-color-warning-light: #fdc243;
+  --ifm-color-warning-lighter: #fdc54f;
+  --ifm-color-warning-lightest: #fed077;
+  
+  /* Dark theme backgrounds */
+  --ifm-background-color: #1b1b1d;
+  --ifm-background-surface-color: #2f2f32;
+  --ifm-card-background-color: #2f2f32;
+  
+  --docusaurus-highlighted-code-line-bg: rgba(77, 136, 229, 0.3);
 }
