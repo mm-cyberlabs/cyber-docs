@@ -32,6 +32,10 @@
     border: 1px solid var(--ifm-color-emphasis-300);
 }
 
+[data-theme='light'] .erd-controls > .erd-control-group:first-child .erd-btn {
+    color: #fff;
+}
+
 .erd-btn {
     background-color: var(--ifm-color-primary);
     color: var(--ifm-color-primary-contrast-foreground);
@@ -123,6 +127,12 @@
 .erd-table.selected {
     border-color: var(--ifm-color-warning);
     box-shadow: 0 0 0 3px var(--ifm-color-warning-lighter), 0 8px 30px rgba(0, 0, 0, 0.25);
+}
+
+/* Search highlighted tables */
+.erd-table.search-highlighted {
+    border-color: rgba(255, 120, 120, 0.6);
+    box-shadow: 0 0 0 3px rgba(255, 120, 120, 0.4), 0 8px 30px rgba(0, 0, 0, 0.25);
 }
 
 .erd-table-header {
@@ -304,6 +314,10 @@
     opacity: 0.9;
 }
 
+[data-theme='light'] .erd-zoom-level {
+    color: #fff;
+}
+
 /* Schema Filter */
 .erd-schema-filter {
     position: absolute;
@@ -437,6 +451,11 @@
 
 [data-theme='dark'] .erd-table.selected {
     box-shadow: 0 0 0 3px var(--ifm-color-warning-lighter), 0 8px 30px rgba(0, 0, 0, 0.6);
+}
+
+[data-theme='dark'] .erd-table.search-highlighted {
+    border-color: rgba(255, 150, 150, 0.7);
+    box-shadow: 0 0 0 3px rgba(255, 150, 150, 0.5), 0 8px 30px rgba(0, 0, 0, 0.6);
 }
 
 /* Dark theme: black text for highlighted columns */
@@ -605,8 +624,8 @@
 
 /* Search highlighted columns */
 .erd-column.search-highlighted {
-    background-color: rgba(128, 128, 128, 0.2) !important;
-    border-left: 3px solid rgba(128, 128, 128, 0.6);
+    background-color: rgba(255, 120, 120, 0.2) !important;
+    border-left: 3px solid rgba(255, 120, 120, 0.6);
     animation: searchPulse 2s ease-in-out;
 }
 
@@ -616,9 +635,9 @@
 }
 
 @keyframes searchPulse {
-    0% { background-color: rgba(128, 128, 128, 0.4); }
-    50% { background-color: rgba(128, 128, 128, 0.2); }
-    100% { background-color: rgba(128, 128, 128, 0.2); }
+    0% { background-color: rgba(255, 120, 120, 0.4); }
+    50% { background-color: rgba(255, 120, 120, 0.2); }
+    100% { background-color: rgba(255, 120, 120, 0.2); }
 }
 
 /* Dark theme search styles */
@@ -635,8 +654,8 @@
 }
 
 [data-theme='dark'] .erd-column.search-highlighted {
-    background-color: rgba(200, 200, 200, 0.15) !important;
-    border-left: 3px solid rgba(200, 200, 200, 0.6);
+    background-color: rgba(255, 150, 150, 0.15) !important;
+    border-left: 3px solid rgba(255, 150, 150, 0.6);
     animation: searchPulseDark 2s ease-in-out;
 }
 
@@ -645,9 +664,9 @@
 }
 
 @keyframes searchPulseDark {
-    0% { background-color: rgba(200, 200, 200, 0.3); }
-    50% { background-color: rgba(200, 200, 200, 0.15); }
-    100% { background-color: rgba(200, 200, 200, 0.15); }
+    0% { background-color: rgba(255, 150, 150, 0.3); }
+    50% { background-color: rgba(255, 150, 150, 0.15); }
+    100% { background-color: rgba(255, 150, 150, 0.15); }
 }
 
 /* Docusaurus CSS variables automatically handle light/dark mode switching */

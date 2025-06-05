@@ -37,6 +37,7 @@ const ERDDiagram = ({
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [highlightedColumns, setHighlightedColumns] = useState(new Set());
+    const [highlightedTables, setHighlightedTables] = useState(new Set());
     const [showAllResults, setShowAllResults] = useState(false);
 
     const canvasRef = useRef(null);
@@ -770,10 +771,12 @@ const ERDDiagram = ({
         const isSelected = selectedTable === tableKey;
         const isCollapsed = collapsedTables.has(tableKey);
 
+        const isSearchHighlighted = highlightedTables.has(tableKey);
+
         return (
             <div
                 key={tableKey}
-                className={`erd-table ${isSelected ? 'selected' : ''}`}
+                className={`erd-table ${isSelected ? 'selected' : ''} ${isSearchHighlighted ? 'search-highlighted' : ''}`}
                 style={{
                     left: position.x,
                     top: position.y,
@@ -1312,6 +1315,7 @@ const ERDDiagram = ({
         setSearchQuery(query);
         // Clear highlights when searching
         setHighlightedColumns(new Set());
+        setHighlightedTables(new Set());
         // Reset show all results state
         setShowAllResults(false);
         performSearch(query);
@@ -1336,6 +1340,8 @@ const ERDDiagram = ({
             // If it's a table result, clear column highlighting
             setHighlightedColumns(new Set());
         }
+        // Highlight the table itself
+        setHighlightedTables(new Set([tableKey]));
 
         // Navigate to the table and bring it into view
         setTimeout(() => {
