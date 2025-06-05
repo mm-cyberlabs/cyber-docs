@@ -454,9 +454,10 @@ const ERDDiagram = ({
         );
 
         let positions = { ...tablePositions };
-        const maxIterations = 5;
+        let iterations = 0;
+        const maxIterations = 10;
 
-        for (let iter = 0; iter < maxIterations; iter++) {
+        while (iterations < maxIterations) {
             const tables = getTableInfo(positions);
             let moved = false;
 
@@ -468,7 +469,7 @@ const ERDDiagram = ({
                         const dx = (a.x + a.width / 2) - (b.x + b.width / 2);
                         const dy = (a.y + a.height / 2) - (b.y + b.height / 2);
                         const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-                        const push = 20;
+                        const push = 30;
                         const offsetX = (dx / dist) * push;
                         const offsetY = (dy / dist) * push;
 
@@ -486,6 +487,7 @@ const ERDDiagram = ({
             }
 
             if (!moved) break;
+            iterations += 1;
         }
 
         setTablePositions(prev => ({ ...prev, ...positions }));
@@ -1125,16 +1127,16 @@ const ERDDiagram = ({
 
     // Toggle individual table collapse state
     const toggleTableCollapse = useCallback((tableKey) => {
+        const willExpand = collapsedTables.has(tableKey);
+
         setCollapsedTables(prev => {
             const newSet = new Set(prev);
-            const wasCollapsed = newSet.has(tableKey);
-            
-            if (wasCollapsed) {
+            if (willExpand) {
                 newSet.delete(tableKey);
             } else {
                 newSet.add(tableKey);
             }
-            
+
             // Update global state based on current state
             const totalVisibleTables = new Set();
             metadata?.schemas?.forEach(schema => {
@@ -1144,15 +1146,17 @@ const ERDDiagram = ({
                     });
                 }
             });
-            
+
             setAllTablesCollapsed(newSet.size === totalVisibleTables.size);
-            
-            // Individual table expand/collapse doesn't need auto-fit
-            // This preserves the current view position
-            
+
             return newSet;
         });
-    }, [metadata, visibleSchemas]);
+
+        if (willExpand) {
+            // Give the table time to expand before resolving overlaps
+            setTimeout(() => spreadOverlappingTables(), 150);
+        }
+    }, [metadata, visibleSchemas, collapsedTables, spreadOverlappingTables]);
 
 
 
