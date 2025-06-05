@@ -7,7 +7,7 @@
     border-radius: 8px;
     box-shadow: 0 4px 12px var(--ifm-color-emphasis-200);
     background-color: var(--ifm-background-color);
-    overflow: hidden; /* No scrolling - fixed canvas size */
+    overflow: hidden; /* No scrolling - mouse pan only */
     border: 1px solid var(--ifm-color-emphasis-300);
 }
 
@@ -19,6 +19,7 @@
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
+    pointer-events: auto;
 }
 
 .erd-control-group {
@@ -81,13 +82,13 @@
 }
 
 .erd-canvas {
-    width: 100%;
-    height: 100%;
+    width: 4000px; /* Large canvas for free panning */
+    height: 4000px; /* Large canvas for free panning */
     cursor: grab;
     background-color: var(--ifm-background-color);
     user-select: none; /* Prevent text selection while dragging */
     position: relative;
-    overflow: hidden; /* Keep content within canvas bounds */
+    transform-origin: 0 0; /* Ensure scaling happens from top-left */
 }
 
 .erd-canvas.dragging {

@@ -27,7 +27,7 @@ const ERDDiagram = ({
     const [selectedTable, setSelectedTable] = useState(null);
     const [currentLayout, setLayout] = useState(layout);
     const [zoom, setZoom] = useState(1);
-    const [pan, setPan] = useState({ x: 0, y: 0 });
+    const [pan, setPan] = useState({ x: -1500, y: -1500 }); // Center the large canvas in viewport
     const [isDragging, setIsDragging] = useState(false);
     const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
     const [visibleSchemas, setVisibleSchemas] = useState(new Set());
@@ -153,12 +153,11 @@ const ERDDiagram = ({
 
     // Calculate table positions based on layout
     const calculateTablePositions = useCallback(() => {
-        if (!metadata?.schemas || !canvasRef.current) return;
+        if (!metadata?.schemas) return;
 
-        const canvas = canvasRef.current;
-        const rect = canvas.getBoundingClientRect();
-        const centerX = rect.width / 2;
-        const centerY = rect.height / 2;
+        // Use the center of the large canvas (4000x4000)
+        const centerX = 2000;
+        const centerY = 2000;
         const positions = {};
 
         // Filter tables based on props
@@ -190,13 +189,13 @@ const ERDDiagram = ({
                     
                     // Calculate spacing to prevent overlap (table width + padding)
                     const tableWidth = 200;
-                    const tablePadding = 60; // Padding between tables
+                    const tablePadding = 10; // Very tight padding between tables
                     const baseSpacingX = tableWidth + tablePadding;
-                    const baseSpacingY = 180; // Vertical spacing (considering table height)
+                    const baseSpacingY = 80; // Very tight vertical spacing
                     
-                    // Apply zoom to spacing to create zoom effect
-                    const spacingX = baseSpacingX * zoom;
-                    const spacingY = baseSpacingY * zoom;
+                    // Use base spacing without zoom scaling
+                    const spacingX = baseSpacingX;
+                    const spacingY = baseSpacingY;
                     
                     // Center the grid layout
                     const totalGridWidth = (cols - 1) * spacingX;
@@ -221,19 +220,20 @@ const ERDDiagram = ({
                     const safeCenterX = centerX;
                     const safeCenterY = centerY;
                     
-                    // Calculate proper spacing to prevent overlap
-                    const minTableSpacing = 80; // Minimum spacing between table edges
+                    // Calculate extremely tight spacing to keep tables very close
+                    const minTableSpacing = 5; // Extremely tight spacing between table edges
                     const effectiveTableWidth = tableWidth + minTableSpacing;
                     
-                    // Calculate circumference needed for all tables with proper spacing
+                    // Calculate circumference needed for all tables with extremely tight spacing
                     const totalCircumference = tableCount * effectiveTableWidth;
                     const minRadiusFromSpacing = totalCircumference / (2 * Math.PI);
                     
-                    // Ensure minimum radius for better distribution
-                    const baseRadius = Math.max(200, minRadiusFromSpacing);
+                    // Use much smaller radius for extremely compact layout - reduce by 90% and cap at 150px max
+                    const calculatedRadius = minRadiusFromSpacing * 0.1; // 90% reduction instead of 70%
+                    const baseRadius = Math.min(Math.max(15, calculatedRadius), 150); // Cap at 150px maximum
                     
-                    // Apply zoom to radius - this creates the zoom effect on distances
-                    const radius = baseRadius * zoom;
+                    // Use base radius without zoom scaling
+                    const radius = baseRadius;
                     
                     const angle = (index / tableCount) * 2 * Math.PI;
                     positions[key] = {
@@ -261,12 +261,12 @@ const ERDDiagram = ({
                     
                     // Calculate layout dimensions with zoom effect
                     const maxLevel = Math.max(...Array.from(levelGroups.keys()));
-                    const baseLevelHeight = 120; // Base vertical spacing between levels
-                    const baseTableSpacing = 180; // Base horizontal spacing between tables
+                    const baseLevelHeight = 50; // Very tight vertical spacing between levels
+                    const baseTableSpacing = 80; // Very tight horizontal spacing between tables
                     
-                    // Apply zoom to create zoom effect on distances
-                    const levelHeight = baseLevelHeight * zoom;
-                    const tableSpacing = baseTableSpacing * zoom;
+                    // Use base spacing without zoom scaling
+                    const levelHeight = baseLevelHeight;
+                    const tableSpacing = baseTableSpacing;
                     
                     // Center the tree vertically by calculating total height and starting from center
                     const totalTreeHeight = maxLevel * levelHeight;
@@ -304,15 +304,15 @@ const ERDDiagram = ({
         });
 
         setTablePositions(prev => ({ ...prev, ...positions }));
-    }, [metadata, currentLayout, tables, visibleSchemas, manuallyPositioned, zoom, buildHierarchyTree]);
+    }, [metadata, currentLayout, tables, visibleSchemas, manuallyPositioned, buildHierarchyTree]);
 
 
     // Calculate optimal zoom to fit all tables in viewport
     const calculateOptimalZoom = useCallback(() => {
-        if (!metadata?.schemas || !canvasRef.current || Object.keys(tablePositions).length === 0) return;
+        if (!metadata?.schemas || !containerRef.current || Object.keys(tablePositions).length === 0) return;
 
-        const canvas = canvasRef.current;
-        const rect = canvas.getBoundingClientRect();
+        const container = containerRef.current;
+        const rect = container.getBoundingClientRect();
         
         // Account for UI controls spacing
         const controlsMargin = 80; // Space for top controls
@@ -338,8 +338,8 @@ const ERDDiagram = ({
         
         if (minX === Infinity) return; // No tables positioned yet
         
-        // Calculate required dimensions with some padding
-        const padding = 60;
+        // Calculate required dimensions with minimal padding for tighter fit
+        const padding = 40;
         const requiredWidth = (maxX - minX) + (padding * 2);
         const requiredHeight = (maxY - minY) + (padding * 2);
         
@@ -347,9 +347,9 @@ const ERDDiagram = ({
         const zoomX = availableWidth / requiredWidth;
         const zoomY = availableHeight / requiredHeight;
         
-        // Use the smaller ratio to ensure everything fits, but cap at reasonable values
-        const optimalZoom = Math.min(Math.min(zoomX, zoomY), 1.5); // Max zoom of 1.5x
-        const finalZoom = Math.max(optimalZoom, 0.3); // Min zoom of 0.3x
+        // Use the smaller ratio to ensure everything fits, but with higher minimum zoom
+        const optimalZoom = Math.min(Math.min(zoomX, zoomY), 2.0); // Max zoom of 2.0x
+        const finalZoom = Math.max(optimalZoom, 0.6); // Min zoom of 0.6x for better visibility
         
         if (finalZoom !== zoom) {
             setZoom(finalZoom);
@@ -358,17 +358,17 @@ const ERDDiagram = ({
 
     // Center the diagram in the viewport
     const centerDiagram = useCallback(() => {
-        if (!canvasRef.current || Object.keys(tablePositions).length === 0) return;
+        if (!containerRef.current || Object.keys(tablePositions).length === 0) return;
 
-        const canvas = canvasRef.current;
-        const rect = canvas.getBoundingClientRect();
+        const container = containerRef.current;
+        const rect = container.getBoundingClientRect();
         
         // Find the bounds of all table positions
         let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
         
         Object.values(tablePositions).forEach(position => {
-            const tableWidth = 200 * zoom;
-            const tableHeight = 150 * zoom;
+            const tableWidth = 200;
+            const tableHeight = 150;
             
             minX = Math.min(minX, position.x);
             maxX = Math.max(maxX, position.x + tableWidth);
@@ -391,14 +391,97 @@ const ERDDiagram = ({
         const viewportCenterX = leftMargin + (rect.width - schemaMargin - leftMargin) / 2;
         const viewportCenterY = controlsMargin + (rect.height - controlsMargin - searchMargin) / 2;
         
-        // Calculate pan to center the content
+        // Calculate pan to center the content (scaled by zoom)
         const newPan = {
-            x: viewportCenterX - contentCenterX,
-            y: viewportCenterY - contentCenterY
+            x: viewportCenterX - (contentCenterX * zoom),
+            y: viewportCenterY - (contentCenterY * zoom)
         };
         
         setPan(newPan);
     }, [tablePositions, zoom]);
+
+    // Calculate bounds of all visible tables
+    const calculateTableBounds = useCallback(() => {
+        if (!metadata?.schemas || Object.keys(tablePositions).length === 0) return null;
+
+        let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+        let hasAnyTable = false;
+
+        metadata.schemas.forEach(schema => {
+            if (!visibleSchemas.has(schema.name)) return;
+            schema.tables?.forEach(table => {
+                const tableKey = `${schema.name}.${table.name}`;
+                const position = tablePositions[tableKey];
+                if (position) {
+                    hasAnyTable = true;
+                    const isCollapsed = collapsedTables.has(tableKey);
+                    const tableWidth = 200;
+                    const tableHeight = isCollapsed ? 60 : Math.min(350, 60 + (table.columns?.length || 0) * 24);
+                    
+                    minX = Math.min(minX, position.x);
+                    maxX = Math.max(maxX, position.x + tableWidth);
+                    minY = Math.min(minY, position.y);
+                    maxY = Math.max(maxY, position.y + tableHeight);
+                }
+            });
+        });
+
+        if (!hasAnyTable) return null;
+
+        return { minX, maxX, minY, maxY, width: maxX - minX, height: maxY - minY };
+    }, [metadata, tablePositions, visibleSchemas, collapsedTables]);
+
+    // Auto-adjust zoom and position to fit all tables with proper spacing
+    const autoFitTables = useCallback(() => {
+        if (!containerRef.current) return;
+
+        const bounds = calculateTableBounds();
+        if (!bounds) return;
+
+        const container = containerRef.current;
+        const rect = container.getBoundingClientRect();
+        
+        // Account for UI controls spacing
+        const controlsMargin = 80;
+        const searchMargin = 80;
+        const schemaMargin = 220;
+        const leftMargin = 20;
+        
+        const availableWidth = rect.width - schemaMargin - leftMargin;
+        const availableHeight = rect.height - controlsMargin - searchMargin;
+        
+        // Add minimal padding around the content for tighter fit
+        const padding = 40;
+        const requiredWidth = bounds.width + (padding * 2);
+        const requiredHeight = bounds.height + (padding * 2);
+        
+        // Calculate zoom ratios to fit content
+        const zoomX = availableWidth / requiredWidth;
+        const zoomY = availableHeight / requiredHeight;
+        
+        // Use the smaller ratio to ensure everything fits with better visibility
+        const optimalZoom = Math.min(zoomX, zoomY, 2.0); // Cap at 2.0x
+        const finalZoom = Math.max(optimalZoom, 0.6); // Min zoom of 0.6x for better visibility
+        
+        setZoom(finalZoom);
+        
+        // Center the content after zoom adjustment
+        setTimeout(() => {
+            const newBounds = calculateTableBounds();
+            if (!newBounds) return;
+            
+            const contentCenterX = (newBounds.minX + newBounds.maxX) / 2;
+            const contentCenterY = (newBounds.minY + newBounds.maxY) / 2;
+            
+            const viewportCenterX = leftMargin + availableWidth / 2;
+            const viewportCenterY = controlsMargin + availableHeight / 2;
+            
+            setPan({
+                x: viewportCenterX - (contentCenterX * finalZoom),
+                y: viewportCenterY - (contentCenterY * finalZoom)
+            });
+        }, 100);
+    }, [calculateTableBounds, setZoom, setPan]);
 
     // Initialize table positions
     useEffect(() => {
@@ -412,14 +495,11 @@ const ERDDiagram = ({
     useEffect(() => {
         if (Object.keys(tablePositions).length > 0 && !hasInitialized) {
             setTimeout(() => {
-                calculateOptimalZoom();
-                setTimeout(() => {
-                    centerDiagram();
-                    setHasInitialized(true); // Prevent future auto-adjustments
-                }, 100);
-            }, 100);
+                autoFitTables(); // This calculates optimal zoom and centers properly
+                setHasInitialized(true); // Prevent future auto-adjustments
+            }, 200);
         }
-    }, [tablePositions, calculateOptimalZoom, centerDiagram, hasInitialized]);
+    }, [tablePositions, autoFitTables, hasInitialized]);
 
 
     // Handle table drag
@@ -514,13 +594,32 @@ const ERDDiagram = ({
 
     // Handle zoom
     const handleZoom = useCallback((delta) => {
+        if (!containerRef.current) return;
+        
+        const container = containerRef.current;
+        const rect = container.getBoundingClientRect();
+        
+        // Calculate the center of the viewport
+        const viewportCenterX = rect.width / 2;
+        const viewportCenterY = rect.height / 2;
+        
         setZoom(prev => {
+            const oldZoom = prev;
             const newZoom = Math.max(0.1, Math.min(3, prev + delta));
-            // Recalculate table positions when zoom changes
-            setTimeout(() => calculateTablePositions(), 50);
+            
+            // Calculate the point in canvas coordinates that should stay fixed (viewport center)
+            const canvasPointX = (viewportCenterX - pan.x) / oldZoom;
+            const canvasPointY = (viewportCenterY - pan.y) / oldZoom;
+            
+            // Calculate new pan to keep the same canvas point at viewport center
+            const newPanX = viewportCenterX - (canvasPointX * newZoom);
+            const newPanY = viewportCenterY - (canvasPointY * newZoom);
+            
+            setPan({ x: newPanX, y: newPanY });
+            
             return newZoom;
         });
-    }, [calculateTablePositions]);
+    }, [pan, setPan]);
 
     // Removed wheel handler - let mouse wheel scroll table columns naturally
 
@@ -604,8 +703,6 @@ const ERDDiagram = ({
                 style={{
                     left: position.x,
                     top: position.y,
-                    transform: `scale(${zoom})`,
-                    transformOrigin: 'top left',
                     cursor: 'move'
                 }}
                 onMouseDown={(e) => handleTableMouseDown(e, tableKey)}
@@ -765,10 +862,10 @@ const ERDDiagram = ({
         const targetCollapsed = collapsedTables.has(targetKey);
 
         // Calculate connection points based on table state and proximity
-        const tableHeaderHeight = 40 * zoom; // Height of table header (scaled)
-        const rowHeight = 24 * zoom; // Height of each column row (scaled)
-        const tableWidth = 200 * zoom; // Table width (scaled)
-        const borderOffset = 2 * zoom; // Border offset (scaled)
+        const tableHeaderHeight = 40; // Height of table header
+        const rowHeight = 24; // Height of each column row
+        const tableWidth = 200; // Table width
+        const borderOffset = 2; // Border offset
         
         // Calculate table centers to determine closest sides
         const sourceCenterX = sourcePos.x + tableWidth / 2;
@@ -828,7 +925,7 @@ const ERDDiagram = ({
 
         // Create curved path for better visualization
         const deltaX = Math.abs(targetX - sourceX);
-        const controlOffset = Math.min(deltaX * 0.3, 80 * zoom); // Scaled control offset
+        const controlOffset = Math.min(deltaX * 0.3, 80); // Control offset
         
         // Determine direction for control points
         let controlX1, controlX2;
@@ -868,8 +965,8 @@ const ERDDiagram = ({
                     position: 'absolute',
                     top: 0,
                     left: 0,
-                    width: '100%',
-                    height: '100%',
+                    width: '4000px',
+                    height: '4000px',
                     pointerEvents: 'none',
                     zIndex: 0
                 }}
@@ -896,7 +993,7 @@ const ERDDiagram = ({
                                 d={path}
                                 className={`erd-relationship-line ${isHighlighted ? 'highlighted' : ''}`}
                                 stroke={isHighlighted ? "var(--ifm-color-warning)" : "var(--ifm-color-info)"}
-                                strokeWidth={isHighlighted ? 3 * zoom : 2 * zoom}
+                                strokeWidth={isHighlighted ? 3 : 2}
                                 fill="none"
                             />
                             
@@ -932,10 +1029,10 @@ const ERDDiagram = ({
             return newSet;
         });
         
-        // Recalculate positions and adjust zoom after schema toggle
+        // Recalculate positions and auto-fit after schema toggle
         setTimeout(() => {
             calculateTablePositions();
-            setTimeout(() => checkAndAdjustZoom(), 200);
+            setTimeout(() => autoFitTables(), 200);
         }, 100);
     };
 
@@ -964,11 +1061,15 @@ const ERDDiagram = ({
         }, 100);
     };
 
+
+
     // Toggle individual table collapse state
-    const toggleTableCollapse = (tableKey) => {
+    const toggleTableCollapse = useCallback((tableKey) => {
         setCollapsedTables(prev => {
             const newSet = new Set(prev);
-            if (newSet.has(tableKey)) {
+            const wasCollapsed = newSet.has(tableKey);
+            
+            if (wasCollapsed) {
                 newSet.delete(tableKey);
             } else {
                 newSet.add(tableKey);
@@ -986,87 +1087,26 @@ const ERDDiagram = ({
             
             setAllTablesCollapsed(newSet.size === totalVisibleTables.size);
             
-            // Check for overlaps after changing table state
-            setTimeout(() => checkAndAdjustZoom(), 100);
+            // Individual table expand/collapse doesn't need auto-fit
+            // This preserves the current view position
             
             return newSet;
         });
-    };
+    }, [metadata, visibleSchemas]);
 
-    // Check for table overlaps and adjust zoom if needed
-    const checkAndAdjustZoom = useCallback(() => {
-        if (!metadata?.schemas || Object.keys(tablePositions).length === 0) return;
 
-        // Get all visible tables
-        const visibleTables = [];
-        metadata.schemas.forEach(schema => {
-            if (!visibleSchemas.has(schema.name)) return;
-            schema.tables?.forEach(table => {
-                const tableKey = `${schema.name}.${table.name}`;
-                const position = tablePositions[tableKey];
-                if (position) {
-                    const isCollapsed = collapsedTables.has(tableKey);
-                    const tableHeight = isCollapsed ? 60 : Math.min(350, 60 + (table.columns?.length || 0) * 24);
-                    visibleTables.push({
-                        x: position.x,
-                        y: position.y,
-                        width: 200,
-                        height: tableHeight,
-                        key: tableKey
-                    });
-                }
-            });
-        });
-
-        if (visibleTables.length < 2) return;
-
-        // Check for overlaps
-        let hasOverlap = false;
-        for (let i = 0; i < visibleTables.length; i++) {
-            for (let j = i + 1; j < visibleTables.length; j++) {
-                const table1 = visibleTables[i];
-                const table2 = visibleTables[j];
-                
-                // Add padding around tables
-                const padding = 20;
-                if (table1.x < table2.x + table2.width + padding &&
-                    table1.x + table1.width + padding > table2.x &&
-                    table1.y < table2.y + table2.height + padding &&
-                    table1.y + table1.height + padding > table2.y) {
-                    hasOverlap = true;
-                    break;
-                }
-            }
-            if (hasOverlap) break;
-        }
-
-        // Adjust zoom if there are overlaps (less aggressive now that positions scale)
-        if (hasOverlap && zoom > 0.4) {
-            setZoom(prev => {
-                const newZoom = Math.max(0.4, prev - 0.05);
-                // Recalculate positions after zoom change
-                setTimeout(() => calculateTablePositions(), 100);
-                return newZoom;
-            });
-        } else if (!hasOverlap && zoom < 1.0) {
-            // Gradually zoom back in if no overlaps
-            setZoom(prev => {
-                const newZoom = Math.min(1.0, prev + 0.02);
-                // Recalculate positions after zoom change
-                setTimeout(() => calculateTablePositions(), 100);
-                return newZoom;
-            });
-        }
-    }, [metadata, tablePositions, visibleSchemas, collapsedTables, zoom]);
 
     // Toggle all tables collapse state
-    const toggleAllTables = () => {
+    const toggleAllTables = useCallback(() => {
         if (allTablesCollapsed) {
             // Expand all tables
             setCollapsedTables(new Set());
             setAllTablesCollapsed(false);
-            // Check for overlaps after a short delay to allow state to update
-            setTimeout(() => checkAndAdjustZoom(), 100);
+            // Auto-fit tables after expanding to prevent overlaps and ensure all are visible
+            setTimeout(() => {
+                calculateTablePositions();
+                setTimeout(() => autoFitTables(), 200);
+            }, 100);
         } else {
             // Collapse all tables
             const allTables = new Set();
@@ -1079,10 +1119,9 @@ const ERDDiagram = ({
             });
             setCollapsedTables(allTables);
             setAllTablesCollapsed(true);
-            // Check for zoom adjustment after collapsing
-            setTimeout(() => checkAndAdjustZoom(), 100);
+            // No auto-fit needed when collapsing - preserves current view
         }
-    };
+    }, [allTablesCollapsed, metadata, visibleSchemas, calculateTablePositions, autoFitTables]);
 
     // Fuzzy search algorithm - calculate similarity percentage
     const calculateSimilarity = (str1, str2) => {
@@ -1229,8 +1268,7 @@ const ERDDiagram = ({
         remainingCollapsed.delete(tableKey);
         setAllTablesCollapsed(remainingCollapsed.size === totalVisibleTables.size);
 
-        // Check for overlaps after expanding a table
-        setTimeout(() => checkAndAdjustZoom(), 100);
+        // Just navigate to the table without auto-fitting to preserve view position
 
         // Clear search after selection
         setSearchQuery('');
@@ -1331,7 +1369,8 @@ const ERDDiagram = ({
                 ref={canvasRef}
                 className={`erd-canvas ${isDragging ? 'dragging' : ''}`}
                 style={{ 
-                    transform: `translate(${pan.x}px, ${pan.y}px)`
+                    transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+                    transformOrigin: '0 0'
                 }}
                 onMouseDown={handleCanvasMouseDown}
                 onMouseMove={handleCanvasMouseMove}
