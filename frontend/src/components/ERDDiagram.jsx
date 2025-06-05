@@ -210,29 +210,39 @@ const ERDDiagram = ({
                     break;
 
                 case 'circular': {
-                    // Calculate radius based on table count and size with moderate spacing
+                    // Calculate radius based on table count and table dimensions
                     const tableWidth = 200;
                     const tableMinHeight = 60; // Collapsed table height
                     const tableMaxHeight = 350; // Expanded table height with many columns
-                    const avgTableHeight = tableMinHeight + (tableMaxHeight - tableMinHeight) * 0.3;
 
-                    // Use canvas center for positioning
+                    // Determine the tallest visible table to ensure enough vertical spacing
+                    let tallest = tableMinHeight;
+                    metadata.schemas.forEach(s => {
+                        if (!visibleSchemas.has(s.name)) return;
+                        s.tables?.forEach(t => {
+                            const k = `${s.name}.${t.name}`;
+                            const collapsed = collapsedTables.has(k);
+                            const h = collapsed ? tableMinHeight : Math.min(tableMaxHeight, tableMinHeight + (t.columns?.length || 0) * 24);
+                            if (h > tallest) tallest = h;
+                        });
+                    });
+
                     const safeCenterX = centerX;
                     const safeCenterY = centerY;
 
-                    // Base circumference needed for all tables without any spacing
-                    const baseCircumference = tableCount * tableWidth;
-                    // Add a small buffer to keep tables from touching
+                    // Base circumference uses the larger of width or tallest height
+                    const maxDim = Math.max(tableWidth, tallest);
+                    const baseCircumference = tableCount * maxDim;
                     const scaledCircumference = baseCircumference * 1.1; // 10% extra space
 
-                    // Compute radius and cap to avoid extremely large layouts
                     const calculatedRadius = scaledCircumference / (2 * Math.PI);
-                    const radius = Math.min(Math.max(150, calculatedRadius), 600);
+                    const radius = Math.max(150, calculatedRadius);
 
                     const angle = (index / tableCount) * 2 * Math.PI;
+                    const currentHeight = tallest; // use tallest for centering
                     positions[key] = {
                         x: safeCenterX + radius * Math.cos(angle) - (tableWidth / 2),
-                        y: safeCenterY + radius * Math.sin(angle) - (avgTableHeight / 2)
+                        y: safeCenterY + radius * Math.sin(angle) - (currentHeight / 2)
                     };
                     break;
                 }
@@ -455,7 +465,7 @@ const ERDDiagram = ({
 
         let positions = { ...tablePositions };
         let iterations = 0;
-        const maxIterations = 10;
+        const maxIterations = 20;
 
         while (iterations < maxIterations) {
             const tables = getTableInfo(positions);
@@ -469,7 +479,7 @@ const ERDDiagram = ({
                         const dx = (a.x + a.width / 2) - (b.x + b.width / 2);
                         const dy = (a.y + a.height / 2) - (b.y + b.height / 2);
                         const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-                        const push = 30;
+                        const push = 50;
                         const offsetX = (dx / dist) * push;
                         const offsetY = (dy / dist) * push;
 
