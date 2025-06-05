@@ -642,23 +642,25 @@ const ERDDiagram = ({
     // Navigate to a specific table and bring it into view
     const navigateToTable = useCallback((tableKey) => {
         const position = tablePositions[tableKey];
-        if (!position || !canvasRef.current) return;
+        if (!position || !containerRef.current) return;
 
-        const canvas = canvasRef.current;
-        const rect = canvas.getBoundingClientRect();
-        const centerX = rect.width / 2;
-        const centerY = rect.height / 2;
+        const container = containerRef.current;
+        const rect = container.getBoundingClientRect();
 
-        // Calculate the pan needed to center the table
-        const tableWidth = 200 * zoom;
-        const tableHeight = 100 * zoom; // Approximate table height
-        const tableCenterX = position.x + (tableWidth / 2);
-        const tableCenterY = position.y + (tableHeight / 2);
+        const controlsMargin = 80;
+        const searchMargin = 80;
+        const schemaMargin = 220;
+        const leftMargin = 20;
 
-        // Calculate new pan to center the table in viewport
+        const viewportCenterX = leftMargin + (rect.width - schemaMargin - leftMargin) / 2;
+        const viewportCenterY = controlsMargin + (rect.height - controlsMargin - searchMargin) / 2;
+
+        const tableCenterX = (position.x + 100) * zoom;
+        const tableCenterY = (position.y + 50) * zoom;
+
         const newPan = {
-            x: centerX - tableCenterX,
-            y: centerY - tableCenterY
+            x: viewportCenterX - tableCenterX,
+            y: viewportCenterY - tableCenterY
         };
 
         setPan(newPan);
@@ -1011,7 +1013,9 @@ const ERDDiagram = ({
             controlX2 = targetX + controlOffset;
         }
 
-        return `M ${sourceX} ${sourceY} C ${controlX1} ${sourceY} ${controlX2} ${targetY} ${targetX} ${targetY}`;
+        const path = `M ${sourceX} ${sourceY} C ${controlX1} ${sourceY} ${controlX2} ${targetY} ${targetX} ${targetY}`;
+
+        return { path, sourceX, sourceY, targetX, targetY };
     };
 
     // Get column position in table for precise connection points
@@ -1043,48 +1047,55 @@ const ERDDiagram = ({
                     zIndex: 0
                 }}
             >
-                {relationships.map(relationship => {
-                    const path = calculateRelationshipPath(relationship);
-                    const isHighlighted = highlightedRelations.has(relationship.name);
+                {(() => {
+                    const labelPositions = [];
+                    return relationships.map(relationship => {
+                        const result = calculateRelationshipPath(relationship);
+                        const isHighlighted = highlightedRelations.has(relationship.name);
 
-                    if (!path) return null;
+                        if (!result) return null;
 
-                    const sourcePos = tablePositions[`${relationship.sourceSchema}.${relationship.sourceTable}`];
-                    const targetPos = tablePositions[`${relationship.targetSchema}.${relationship.targetTable}`];
-                    
-                    if (!sourcePos || !targetPos) return null;
+                        const { path, sourceX, sourceY, targetX, targetY } = result;
 
-                    const midX = (sourcePos.x + targetPos.x + 200) / 2;
-                    const midY = (sourcePos.y + targetPos.y + 50) / 2;
+                        const baseX = (sourceX + targetX) / 2;
+                        const baseY = (sourceY + targetY) / 2;
 
+                        let labelX = baseX;
+                        let labelY = baseY - 2;
+                        let offset = 0;
 
-                    return (
-                        <g key={relationship.name}>
-                            {/* Connection line - no arrow */}
-                            <path
-                                d={path}
-                                className={`erd-relationship-line ${isHighlighted ? 'highlighted' : ''}`}
-                                stroke={isHighlighted ? "var(--ifm-color-warning)" : "var(--ifm-color-info)"}
-                                strokeWidth={isHighlighted ? 3 : 2}
-                                fill="none"
-                            />
-                            
-                            {/* Relationship label */}
-                            <text
-                                className="erd-relationship-label"
-                                x={midX}
-                                y={midY - 2}
-                                textAnchor="middle"
-                                fontSize="12"
-                                fill="var(--ifm-color-content)"
-                                fontWeight="500"
-                                style={{ userSelect: 'none' }}
-                            >
-                                {relationship.sourceColumn} → {relationship.targetColumn}
-                            </text>
-                        </g>
-                    );
-                })}
+                        while (labelPositions.some(p => Math.abs(p.x - labelX) < 40 && Math.abs(p.y - labelY) < 14) && offset < 70) {
+                            offset += 14;
+                            labelY = baseY - 2 + offset;
+                        }
+
+                        labelPositions.push({ x: labelX, y: labelY });
+
+                        return (
+                            <g key={relationship.name}>
+                                <path
+                                    d={path}
+                                    className={`erd-relationship-line ${isHighlighted ? 'highlighted' : ''}`}
+                                    stroke={isHighlighted ? "var(--ifm-color-warning)" : "var(--ifm-color-info)"}
+                                    strokeWidth={isHighlighted ? 3 : 2}
+                                    fill="none"
+                                />
+                                <text
+                                    className="erd-relationship-label"
+                                    x={labelX}
+                                    y={labelY}
+                                    textAnchor="middle"
+                                    fontSize="12"
+                                    fill="var(--ifm-color-content)"
+                                    fontWeight="500"
+                                    style={{ userSelect: 'none' }}
+                                >
+                                    {relationship.sourceColumn} → {relationship.targetColumn}
+                                </text>
+                            </g>
+                        );
+                    });
+                })()}
             </svg>
         );
     };
