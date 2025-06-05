@@ -425,6 +425,72 @@ const ERDDiagram = ({
         return { minX, maxX, minY, maxY, width: maxX - minX, height: maxY - minY };
     }, [metadata, tablePositions, visibleSchemas, collapsedTables]);
 
+    // Spread apart any overlapping tables
+    const spreadOverlappingTables = useCallback(() => {
+        if (!metadata?.schemas) return;
+
+        const getTableInfo = (positions) => {
+            const list = [];
+            metadata.schemas.forEach(schema => {
+                if (!visibleSchemas.has(schema.name)) return;
+                schema.tables?.forEach(table => {
+                    const key = `${schema.name}.${table.name}`;
+                    const pos = positions[key];
+                    if (!pos) return;
+                    const collapsed = collapsedTables.has(key);
+                    const width = 200;
+                    const height = collapsed ? 60 : Math.min(350, 60 + (table.columns?.length || 0) * 24);
+                    list.push({ key, x: pos.x, y: pos.y, width, height });
+                });
+            });
+            return list;
+        };
+
+        const rectanglesOverlap = (a, b) => (
+            a.x < b.x + b.width &&
+            a.x + a.width > b.x &&
+            a.y < b.y + b.height &&
+            a.y + a.height > b.y
+        );
+
+        let positions = { ...tablePositions };
+        const maxIterations = 5;
+
+        for (let iter = 0; iter < maxIterations; iter++) {
+            const tables = getTableInfo(positions);
+            let moved = false;
+
+            for (let i = 0; i < tables.length; i++) {
+                for (let j = i + 1; j < tables.length; j++) {
+                    const a = tables[i];
+                    const b = tables[j];
+                    if (rectanglesOverlap(a, b)) {
+                        const dx = (a.x + a.width / 2) - (b.x + b.width / 2);
+                        const dy = (a.y + a.height / 2) - (b.y + b.height / 2);
+                        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+                        const push = 20;
+                        const offsetX = (dx / dist) * push;
+                        const offsetY = (dy / dist) * push;
+
+                        positions[a.key] = {
+                            x: positions[a.key].x + offsetX,
+                            y: positions[a.key].y + offsetY
+                        };
+                        positions[b.key] = {
+                            x: positions[b.key].x - offsetX,
+                            y: positions[b.key].y - offsetY
+                        };
+                        moved = true;
+                    }
+                }
+            }
+
+            if (!moved) break;
+        }
+
+        setTablePositions(prev => ({ ...prev, ...positions }));
+    }, [metadata, visibleSchemas, collapsedTables, tablePositions]);
+
     // Auto-adjust zoom and position to fit all tables with proper spacing
     const autoFitTables = useCallback(() => {
         if (!containerRef.current) return;
@@ -1096,10 +1162,13 @@ const ERDDiagram = ({
             // Expand all tables
             setCollapsedTables(new Set());
             setAllTablesCollapsed(false);
-            // Auto-fit tables after expanding to prevent overlaps and ensure all are visible
+            // Auto-fit tables after expanding and resolve any overlaps
             setTimeout(() => {
                 calculateTablePositions();
-                setTimeout(() => autoFitTables(), 200);
+                setTimeout(() => {
+                    spreadOverlappingTables();
+                    setTimeout(() => autoFitTables(), 200);
+                }, 100);
             }, 100);
         } else {
             // Collapse all tables
@@ -1115,7 +1184,7 @@ const ERDDiagram = ({
             setAllTablesCollapsed(true);
             // No auto-fit needed when collapsing - preserves current view
         }
-    }, [allTablesCollapsed, metadata, visibleSchemas, calculateTablePositions, autoFitTables]);
+    }, [allTablesCollapsed, metadata, visibleSchemas, calculateTablePositions, spreadOverlappingTables, autoFitTables]);
 
     // Fuzzy search algorithm - calculate similarity percentage
     const calculateSimilarity = (str1, str2) => {
