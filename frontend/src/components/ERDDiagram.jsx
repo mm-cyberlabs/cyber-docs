@@ -210,31 +210,25 @@ const ERDDiagram = ({
                     break;
 
                 case 'circular': {
-                    // Calculate optimal radius based on table count and size
+                    // Calculate radius based on table count and size with moderate spacing
                     const tableWidth = 200;
                     const tableMinHeight = 60; // Collapsed table height
                     const tableMaxHeight = 350; // Expanded table height with many columns
                     const avgTableHeight = tableMinHeight + (tableMaxHeight - tableMinHeight) * 0.3;
-                    
-                    // Use canvas center for positioning (since UI controls are now fixed)
+
+                    // Use canvas center for positioning
                     const safeCenterX = centerX;
                     const safeCenterY = centerY;
-                    
-                    // Calculate extremely tight spacing to keep tables very close
-                    const minTableSpacing = 5; // Extremely tight spacing between table edges
-                    const effectiveTableWidth = tableWidth + minTableSpacing;
-                    
-                    // Calculate circumference needed for all tables with extremely tight spacing
-                    const totalCircumference = tableCount * effectiveTableWidth;
-                    const minRadiusFromSpacing = totalCircumference / (2 * Math.PI);
-                    
-                    // Use much smaller radius for extremely compact layout - reduce by 90% and cap at 150px max
-                    const calculatedRadius = minRadiusFromSpacing * 0.1; // 90% reduction instead of 70%
-                    const baseRadius = Math.min(Math.max(15, calculatedRadius), 150); // Cap at 150px maximum
-                    
-                    // Use base radius without zoom scaling
-                    const radius = baseRadius;
-                    
+
+                    // Base circumference needed for all tables without any spacing
+                    const baseCircumference = tableCount * tableWidth;
+                    // Add a small buffer to keep tables from touching
+                    const scaledCircumference = baseCircumference * 1.1; // 10% extra space
+
+                    // Compute radius and cap to avoid extremely large layouts
+                    const calculatedRadius = scaledCircumference / (2 * Math.PI);
+                    const radius = Math.min(Math.max(150, calculatedRadius), 600);
+
                     const angle = (index / tableCount) * 2 * Math.PI;
                     positions[key] = {
                         x: safeCenterX + radius * Math.cos(angle) - (tableWidth / 2),
