@@ -37,6 +37,7 @@ const ERDDiagram = ({
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [highlightedColumns, setHighlightedColumns] = useState(new Set());
+    const [highlightedTables, setHighlightedTables] = useState(new Set());
     const [showAllResults, setShowAllResults] = useState(false);
 
     const canvasRef = useRef(null);
@@ -210,35 +211,39 @@ const ERDDiagram = ({
                     break;
 
                 case 'circular': {
-                    // Calculate optimal radius based on table count and size
+                    // Calculate radius based on table count and table dimensions
                     const tableWidth = 200;
                     const tableMinHeight = 60; // Collapsed table height
                     const tableMaxHeight = 350; // Expanded table height with many columns
-                    const avgTableHeight = tableMinHeight + (tableMaxHeight - tableMinHeight) * 0.3;
-                    
-                    // Use canvas center for positioning (since UI controls are now fixed)
+
+                    // Determine the tallest visible table to ensure enough vertical spacing
+                    let tallest = tableMinHeight;
+                    metadata.schemas.forEach(s => {
+                        if (!visibleSchemas.has(s.name)) return;
+                        s.tables?.forEach(t => {
+                            const k = `${s.name}.${t.name}`;
+                            const collapsed = collapsedTables.has(k);
+                            const h = collapsed ? tableMinHeight : Math.min(tableMaxHeight, tableMinHeight + (t.columns?.length || 0) * 24);
+                            if (h > tallest) tallest = h;
+                        });
+                    });
+
                     const safeCenterX = centerX;
                     const safeCenterY = centerY;
-                    
-                    // Calculate extremely tight spacing to keep tables very close
-                    const minTableSpacing = 5; // Extremely tight spacing between table edges
-                    const effectiveTableWidth = tableWidth + minTableSpacing;
-                    
-                    // Calculate circumference needed for all tables with extremely tight spacing
-                    const totalCircumference = tableCount * effectiveTableWidth;
-                    const minRadiusFromSpacing = totalCircumference / (2 * Math.PI);
-                    
-                    // Use much smaller radius for extremely compact layout - reduce by 90% and cap at 150px max
-                    const calculatedRadius = minRadiusFromSpacing * 0.1; // 90% reduction instead of 70%
-                    const baseRadius = Math.min(Math.max(15, calculatedRadius), 150); // Cap at 150px maximum
-                    
-                    // Use base radius without zoom scaling
-                    const radius = baseRadius;
-                    
+
+                    // Base circumference uses the larger of width or tallest height
+                    const maxDim = Math.max(tableWidth, tallest);
+                    const baseCircumference = tableCount * maxDim;
+                    const scaledCircumference = baseCircumference * 1.1; // 10% extra space
+
+                    const calculatedRadius = scaledCircumference / (2 * Math.PI);
+                    const radius = Math.max(150, calculatedRadius);
+
                     const angle = (index / tableCount) * 2 * Math.PI;
+                    const currentHeight = tallest; // use tallest for centering
                     positions[key] = {
                         x: safeCenterX + radius * Math.cos(angle) - (tableWidth / 2),
-                        y: safeCenterY + radius * Math.sin(angle) - (avgTableHeight / 2)
+                        y: safeCenterY + radius * Math.sin(angle) - (currentHeight / 2)
                     };
                     break;
                 }
@@ -431,6 +436,74 @@ const ERDDiagram = ({
         return { minX, maxX, minY, maxY, width: maxX - minX, height: maxY - minY };
     }, [metadata, tablePositions, visibleSchemas, collapsedTables]);
 
+    // Spread apart any overlapping tables
+    const spreadOverlappingTables = useCallback(() => {
+        if (!metadata?.schemas) return;
+
+        const getTableInfo = (positions) => {
+            const list = [];
+            metadata.schemas.forEach(schema => {
+                if (!visibleSchemas.has(schema.name)) return;
+                schema.tables?.forEach(table => {
+                    const key = `${schema.name}.${table.name}`;
+                    const pos = positions[key];
+                    if (!pos) return;
+                    const collapsed = collapsedTables.has(key);
+                    const width = 200;
+                    const height = collapsed ? 60 : Math.min(350, 60 + (table.columns?.length || 0) * 24);
+                    list.push({ key, x: pos.x, y: pos.y, width, height });
+                });
+            });
+            return list;
+        };
+
+        const rectanglesOverlap = (a, b) => (
+            a.x < b.x + b.width &&
+            a.x + a.width > b.x &&
+            a.y < b.y + b.height &&
+            a.y + a.height > b.y
+        );
+
+        let positions = { ...tablePositions };
+        let iterations = 0;
+        const maxIterations = 20;
+
+        while (iterations < maxIterations) {
+            const tables = getTableInfo(positions);
+            let moved = false;
+
+            for (let i = 0; i < tables.length; i++) {
+                for (let j = i + 1; j < tables.length; j++) {
+                    const a = tables[i];
+                    const b = tables[j];
+                    if (rectanglesOverlap(a, b)) {
+                        const dx = (a.x + a.width / 2) - (b.x + b.width / 2);
+                        const dy = (a.y + a.height / 2) - (b.y + b.height / 2);
+                        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+                        const push = 50;
+                        const offsetX = (dx / dist) * push;
+                        const offsetY = (dy / dist) * push;
+
+                        positions[a.key] = {
+                            x: positions[a.key].x + offsetX,
+                            y: positions[a.key].y + offsetY
+                        };
+                        positions[b.key] = {
+                            x: positions[b.key].x - offsetX,
+                            y: positions[b.key].y - offsetY
+                        };
+                        moved = true;
+                    }
+                }
+            }
+
+            if (!moved) break;
+            iterations += 1;
+        }
+
+        setTablePositions(prev => ({ ...prev, ...positions }));
+    }, [metadata, visibleSchemas, collapsedTables, tablePositions]);
+
     // Auto-adjust zoom and position to fit all tables with proper spacing
     const autoFitTables = useCallback(() => {
         if (!containerRef.current) return;
@@ -570,23 +643,25 @@ const ERDDiagram = ({
     // Navigate to a specific table and bring it into view
     const navigateToTable = useCallback((tableKey) => {
         const position = tablePositions[tableKey];
-        if (!position || !canvasRef.current) return;
+        if (!position || !containerRef.current) return;
 
-        const canvas = canvasRef.current;
-        const rect = canvas.getBoundingClientRect();
-        const centerX = rect.width / 2;
-        const centerY = rect.height / 2;
+        const container = containerRef.current;
+        const rect = container.getBoundingClientRect();
 
-        // Calculate the pan needed to center the table
-        const tableWidth = 200 * zoom;
-        const tableHeight = 100 * zoom; // Approximate table height
-        const tableCenterX = position.x + (tableWidth / 2);
-        const tableCenterY = position.y + (tableHeight / 2);
+        const controlsMargin = 80;
+        const searchMargin = 80;
+        const schemaMargin = 220;
+        const leftMargin = 20;
 
-        // Calculate new pan to center the table in viewport
+        const viewportCenterX = leftMargin + (rect.width - schemaMargin - leftMargin) / 2;
+        const viewportCenterY = controlsMargin + (rect.height - controlsMargin - searchMargin) / 2;
+
+        const tableCenterX = (position.x + 100) * zoom;
+        const tableCenterY = (position.y + 50) * zoom;
+
         const newPan = {
-            x: centerX - tableCenterX,
-            y: centerY - tableCenterY
+            x: viewportCenterX - tableCenterX,
+            y: viewportCenterY - tableCenterY
         };
 
         setPan(newPan);
@@ -696,10 +771,12 @@ const ERDDiagram = ({
         const isSelected = selectedTable === tableKey;
         const isCollapsed = collapsedTables.has(tableKey);
 
+        const isSearchHighlighted = highlightedTables.has(tableKey);
+
         return (
             <div
                 key={tableKey}
-                className={`erd-table ${isSelected ? 'selected' : ''}`}
+                className={`erd-table ${isSelected ? 'selected' : ''} ${isSearchHighlighted ? 'search-highlighted' : ''}`}
                 style={{
                     left: position.x,
                     top: position.y,
@@ -939,7 +1016,9 @@ const ERDDiagram = ({
             controlX2 = targetX + controlOffset;
         }
 
-        return `M ${sourceX} ${sourceY} C ${controlX1} ${sourceY} ${controlX2} ${targetY} ${targetX} ${targetY}`;
+        const path = `M ${sourceX} ${sourceY} C ${controlX1} ${sourceY} ${controlX2} ${targetY} ${targetX} ${targetY}`;
+
+        return { path, sourceX, sourceY, targetX, targetY };
     };
 
     // Get column position in table for precise connection points
@@ -971,48 +1050,55 @@ const ERDDiagram = ({
                     zIndex: 0
                 }}
             >
-                {relationships.map(relationship => {
-                    const path = calculateRelationshipPath(relationship);
-                    const isHighlighted = highlightedRelations.has(relationship.name);
+                {(() => {
+                    const labelPositions = [];
+                    return relationships.map(relationship => {
+                        const result = calculateRelationshipPath(relationship);
+                        const isHighlighted = highlightedRelations.has(relationship.name);
 
-                    if (!path) return null;
+                        if (!result) return null;
 
-                    const sourcePos = tablePositions[`${relationship.sourceSchema}.${relationship.sourceTable}`];
-                    const targetPos = tablePositions[`${relationship.targetSchema}.${relationship.targetTable}`];
-                    
-                    if (!sourcePos || !targetPos) return null;
+                        const { path, sourceX, sourceY, targetX, targetY } = result;
 
-                    const midX = (sourcePos.x + targetPos.x + 200) / 2;
-                    const midY = (sourcePos.y + targetPos.y + 50) / 2;
+                        const baseX = (sourceX + targetX) / 2;
+                        const baseY = (sourceY + targetY) / 2;
 
+                        let labelX = baseX;
+                        let labelY = baseY - 2;
+                        let offset = 0;
 
-                    return (
-                        <g key={relationship.name}>
-                            {/* Connection line - no arrow */}
-                            <path
-                                d={path}
-                                className={`erd-relationship-line ${isHighlighted ? 'highlighted' : ''}`}
-                                stroke={isHighlighted ? "var(--ifm-color-warning)" : "var(--ifm-color-info)"}
-                                strokeWidth={isHighlighted ? 3 : 2}
-                                fill="none"
-                            />
-                            
-                            {/* Relationship label */}
-                            <text
-                                className="erd-relationship-label"
-                                x={midX}
-                                y={midY - 5}
-                                textAnchor="middle"
-                                fontSize="10"
-                                fill="var(--ifm-color-content)"
-                                fontWeight="500"
-                                style={{ userSelect: 'none' }}
-                            >
-                                {relationship.sourceColumn} → {relationship.targetColumn}
-                            </text>
-                        </g>
-                    );
-                })}
+                        while (labelPositions.some(p => Math.abs(p.x - labelX) < 40 && Math.abs(p.y - labelY) < 14) && offset < 70) {
+                            offset += 14;
+                            labelY = baseY - 2 + offset;
+                        }
+
+                        labelPositions.push({ x: labelX, y: labelY });
+
+                        return (
+                            <g key={relationship.name}>
+                                <path
+                                    d={path}
+                                    className={`erd-relationship-line ${isHighlighted ? 'highlighted' : ''}`}
+                                    stroke={isHighlighted ? "var(--ifm-color-warning)" : "var(--ifm-color-info)"}
+                                    strokeWidth={isHighlighted ? 3 : 2}
+                                    fill="none"
+                                />
+                                <text
+                                    className="erd-relationship-label"
+                                    x={labelX}
+                                    y={labelY}
+                                    textAnchor="middle"
+                                    fontSize="12"
+                                    fill="var(--ifm-color-content)"
+                                    fontWeight="500"
+                                    style={{ userSelect: 'none' }}
+                                >
+                                    {relationship.sourceColumn} → {relationship.targetColumn}
+                                </text>
+                            </g>
+                        );
+                    });
+                })()}
             </svg>
         );
     };
@@ -1065,16 +1151,16 @@ const ERDDiagram = ({
 
     // Toggle individual table collapse state
     const toggleTableCollapse = useCallback((tableKey) => {
+        const willExpand = collapsedTables.has(tableKey);
+
         setCollapsedTables(prev => {
             const newSet = new Set(prev);
-            const wasCollapsed = newSet.has(tableKey);
-            
-            if (wasCollapsed) {
+            if (willExpand) {
                 newSet.delete(tableKey);
             } else {
                 newSet.add(tableKey);
             }
-            
+
             // Update global state based on current state
             const totalVisibleTables = new Set();
             metadata?.schemas?.forEach(schema => {
@@ -1084,15 +1170,17 @@ const ERDDiagram = ({
                     });
                 }
             });
-            
+
             setAllTablesCollapsed(newSet.size === totalVisibleTables.size);
-            
-            // Individual table expand/collapse doesn't need auto-fit
-            // This preserves the current view position
-            
+
             return newSet;
         });
-    }, [metadata, visibleSchemas]);
+
+        if (willExpand) {
+            // Give the table time to expand before resolving overlaps
+            setTimeout(() => spreadOverlappingTables(), 150);
+        }
+    }, [metadata, visibleSchemas, collapsedTables, spreadOverlappingTables]);
 
 
 
@@ -1102,10 +1190,13 @@ const ERDDiagram = ({
             // Expand all tables
             setCollapsedTables(new Set());
             setAllTablesCollapsed(false);
-            // Auto-fit tables after expanding to prevent overlaps and ensure all are visible
+            // Auto-fit tables after expanding and resolve any overlaps
             setTimeout(() => {
                 calculateTablePositions();
-                setTimeout(() => autoFitTables(), 200);
+                setTimeout(() => {
+                    spreadOverlappingTables();
+                    setTimeout(() => autoFitTables(), 200);
+                }, 100);
             }, 100);
         } else {
             // Collapse all tables
@@ -1121,7 +1212,7 @@ const ERDDiagram = ({
             setAllTablesCollapsed(true);
             // No auto-fit needed when collapsing - preserves current view
         }
-    }, [allTablesCollapsed, metadata, visibleSchemas, calculateTablePositions, autoFitTables]);
+    }, [allTablesCollapsed, metadata, visibleSchemas, calculateTablePositions, spreadOverlappingTables, autoFitTables]);
 
     // Fuzzy search algorithm - calculate similarity percentage
     const calculateSimilarity = (str1, str2) => {
@@ -1224,6 +1315,7 @@ const ERDDiagram = ({
         setSearchQuery(query);
         // Clear highlights when searching
         setHighlightedColumns(new Set());
+        setHighlightedTables(new Set());
         // Reset show all results state
         setShowAllResults(false);
         performSearch(query);
@@ -1248,6 +1340,8 @@ const ERDDiagram = ({
             // If it's a table result, clear column highlighting
             setHighlightedColumns(new Set());
         }
+        // Highlight the table itself
+        setHighlightedTables(new Set([tableKey]));
 
         // Navigate to the table and bring it into view
         setTimeout(() => {
