@@ -274,7 +274,7 @@
 
 .erd-relationship-label {
     font-family: var(--ifm-font-family-base);
-    font-size: 10px;
+    font-size: 12px;
     fill: var(--ifm-color-content);
     font-weight: 500;
     text-anchor: middle;

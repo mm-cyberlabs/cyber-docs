@@ -1073,9 +1073,9 @@ const ERDDiagram = ({
                             <text
                                 className="erd-relationship-label"
                                 x={midX}
-                                y={midY - 5}
+                                y={midY - 2}
                                 textAnchor="middle"
-                                fontSize="10"
+                                fontSize="12"
                                 fill="var(--ifm-color-content)"
                                 fontWeight="500"
                                 style={{ userSelect: 'none' }}
