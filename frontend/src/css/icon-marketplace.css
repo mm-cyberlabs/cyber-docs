@@ -1,0 +1,304 @@
+/* Icon Marketplace Styles */
+.icon-marketplace {
+    min-height: 100vh;
+    background-color: #FFF;
+    font-family: 'Inter', sans-serif;
+}
+
+.marketplace-header {
+    background: linear-gradient(135deg, #00185A 0%, #0066CC 100%);
+    color: #FFF;
+    padding: 3rem 0 2rem;
+}
+
+.marketplace-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+
+.marketplace-header p {
+    font-size: 1.1rem;
+    text-align: center;
+    margin-bottom: 2rem;
+    opacity: 0.9;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.marketplace-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.search-box {
+    width: 100%;
+    max-width: 400px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    font-size: 1rem;
+    background-color: #FFF;
+    color: #00185A;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #FDB92C;
+    box-shadow: 0 4px 12px rgba(253, 185, 44, 0.3);
+}
+
+.category-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.filter-btn {
+    padding: 0.5rem 1rem;
+    border: 2px solid #FFF;
+    background-color: transparent;
+    color: #FFF;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.filter-btn:hover {
+    background-color: #FDB92C;
+    border-color: #FDB92C;
+    color: #00185A;
+}
+
+.filter-btn.active {
+    background-color: #FDB92C;
+    border-color: #FDB92C;
+    color: #00185A;
+    font-weight: 600;
+}
+
+.marketplace-content {
+    padding: 3rem 0;
+}
+
+.icons-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.icon-card {
+    background-color: #E6E6E6;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.icon-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    border-color: #0066CC;
+}
+
+.icon-preview {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 120px;
+    background-color: #FFF;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    border: 1px solid #ddd;
+}
+
+.icon-image {
+    max-width: 80px;
+    max-height: 80px;
+    width: auto;
+    height: auto;
+    filter: none;
+    transition: transform 0.3s ease;
+}
+
+.icon-card:hover .icon-image {
+    transform: scale(1.1);
+}
+
+.icon-placeholder {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 80px;
+    height: 80px;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.icon-info {
+    text-align: center;
+}
+
+.icon-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #00185A;
+    margin-bottom: 0.5rem;
+}
+
+.icon-meta {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.icon-category,
+.icon-size,
+.icon-format {
+    background-color: #0066CC;
+    color: #FFF;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.icon-category {
+    background-color: #00185A;
+}
+
+.icon-format {
+    background-color: #FDB92C;
+    color: #00185A;
+}
+
+.icon-description {
+    font-size: 0.9rem;
+    color: #444;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+    text-align: left;
+}
+
+.download-btn {
+    background-color: #FDB92C;
+    color: #00185A;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.download-btn:hover {
+    background-color: #00185A;
+    color: #FFF;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 24, 90, 0.3);
+}
+
+.download-btn:active {
+    transform: translateY(0);
+}
+
+.no-results {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #666;
+}
+
+.no-results h3 {
+    font-size: 1.5rem;
+    color: #00185A;
+    margin-bottom: 0.5rem;
+}
+
+.no-results p {
+    font-size: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .marketplace-header h1 {
+        font-size: 2rem;
+    }
+
+    .marketplace-controls {
+        gap: 1rem;
+    }
+
+    .icons-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .icon-card {
+        padding: 1rem;
+    }
+
+    .icon-meta {
+        gap: 0.5rem;
+    }
+
+    .category-filters {
+        gap: 0.25rem;
+    }
+
+    .filter-btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .marketplace-header {
+        padding: 2rem 0 1.5rem;
+    }
+
+    .marketplace-header h1 {
+        font-size: 1.75rem;
+    }
+
+    .marketplace-header p {
+        font-size: 1rem;
+    }
+
+    .icons-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .icon-preview {
+        height: 100px;
+    }
+
+    .icon-image {
+        max-width: 60px;
+        max-height: 60px;
+    }
+}
