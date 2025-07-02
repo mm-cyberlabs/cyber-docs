@@ -1,7 +1,45 @@
 /* Icon Marketplace Styles */
+
+/*
+  Define custom CSS variables for theming.
+  These are the default (light theme) values.
+*/
+:root {
+    --marketplace-card-bg: #E6E6E6;
+    --marketplace-card-border-hover: #0066CC;
+    --marketplace-text-primary: #00185A;
+    --marketplace-text-secondary: #444;
+    --marketplace-search-bg: #FFF;
+    --marketplace-search-text: #00185A;
+    --marketplace-download-btn-bg: #FDB92C;
+    --marketplace-download-btn-text: #00185A;
+    --marketplace-download-btn-hover-bg: #00185A;
+    --marketplace-download-btn-hover-text: #FFF;
+    --marketplace-copy-btn-bg: #00185A;
+    --marketplace-copy-btn-hover-bg: #0066CC;
+}
+
+/*
+  Override the variables for dark theme.
+  Docusaurus adds `data-theme="dark"` to the <html> tag.
+*/
+[data-theme='dark'] {
+    --marketplace-card-bg: #242526; /* Docusaurus's standard card color */
+    --marketplace-card-border-hover: #0084ff; /* A brighter blue for dark mode */
+    --marketplace-text-primary: #E4E6EB; /* Standard light text */
+    --marketplace-text-secondary: #B0B3B8; /* Standard secondary text */
+    --marketplace-search-bg: #3A3B3C;
+    --marketplace-search-text: #E4E6EB;
+    /* Button colors are kept for branding, but hover states can be adjusted */
+    --marketplace-copy-btn-bg: #0066CC;
+    --marketplace-copy-btn-hover-bg: #0084ff;
+}
+
+
 .icon-marketplace {
     min-height: 100vh;
-    background-color: #FFF;
+    /* Use a standard Docusaurus variable for the page background */
+    background-color: var(--ifm-background-color);
     font-family: 'Inter', sans-serif;
 }
 
@@ -49,9 +87,10 @@
     border: 2px solid transparent;
     border-radius: 8px;
     font-size: 1rem;
-    background-color: #FFF;
-    color: #00185A;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background-color: var(--marketplace-search-bg);
+    color: var(--marketplace-search-text);
+    /* UPDATED: A slightly more defined shadow */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.05);
     transition: all 0.3s ease;
 }
 
@@ -78,6 +117,8 @@
     font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
+    /* NEW: Add a subtle shadow to make buttons pop from the header */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .filter-btn:hover {
@@ -105,18 +146,21 @@
 }
 
 .icon-card {
-    background-color: #E6E6E6;
+    background-color: var(--marketplace-card-bg);
     border-radius: 12px;
     padding: 1.5rem;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
     border: 2px solid transparent;
+    /* Use flexbox to align content and push actions to the bottom */
+    display: flex;
+    flex-direction: column;
 }
 
 .icon-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-    border-color: #0066CC;
+    border-color: var(--marketplace-card-border-hover);
 }
 
 .icon-preview {
@@ -124,10 +168,8 @@
     justify-content: center;
     align-items: center;
     height: 120px;
-    background-color: #FFF;
     border-radius: 8px;
     margin-bottom: 1rem;
-    border: 1px solid #ddd;
 }
 
 .icon-image {
@@ -157,12 +199,16 @@
 
 .icon-info {
     text-align: center;
+    /* Allow info section to grow and fill available card space */
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
 }
 
 .icon-name {
     font-size: 1.25rem;
     font-weight: 600;
-    color: #00185A;
+    color: var(--marketplace-text-primary);
     margin-bottom: 0.5rem;
 }
 
@@ -177,64 +223,94 @@
 .icon-category,
 .icon-size,
 .icon-format {
-    background-color: #0066CC;
-    color: #FFF;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    font-weight: 500;
+    color: var(--marketplace-text-secondary);
+    /* Use a monospace font stack for a technical look */
+    font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.8rem; /* Make the font smaller */
+    font-weight: 400;
+    text-transform: uppercase; /* Add to the "spec" feel */
+    letter-spacing: 0.5px;
 }
 
+/* Add an underline specifically to the category */
 .icon-category {
-    background-color: #00185A;
-}
-
-.icon-format {
-    background-color: #FDB92C;
-    color: #00185A;
+    text-decoration: underline;
 }
 
 .icon-description {
     font-size: 0.9rem;
-    color: #444;
+    color: var(--marketplace-text-secondary);
     line-height: 1.5;
     margin-bottom: 1.5rem;
     text-align: left;
+    /* Allow description to grow, pushing actions down */
+    flex-grow: 1;
 }
 
-.download-btn {
-    background-color: #FDB92C;
-    color: #00185A;
-    border: none;
-    padding: 0.75rem 1.5rem;
+/* --- ACTION BUTTONS --- */
+.icon-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem; /* Space between buttons */
+}
+
+/* Base style for all action buttons */
+.icon-actions button {
+    flex: 1 1 auto; /* Allow buttons to grow and shrink */
+    padding: 0.6rem 0.5rem;
     border-radius: 8px;
-    font-size: 1rem;
+    font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
+    border: none;
     transition: all 0.3s ease;
-    width: 100%;
+    text-align: center;
+    /* NEW: Add a base shadow to all action buttons */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+}
+
+.icon-actions button:hover {
+    transform: translateY(-2px);
+    /* UPDATED: Enhance the shadow on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.22);
+}
+
+.icon-actions button:active {
+    transform: translateY(0);
+    /* UPDATED: Remove shadow on click for a "pressed" effect */
+    box-shadow: none;
+}
+
+/* Specific styles for the new copy buttons */
+.copy-btn {
+    background-color: var(--marketplace-copy-btn-bg);
+    color: #FFF; /* White text is fine for both themes */
+}
+
+.copy-btn:hover {
+    background-color: var(--marketplace-copy-btn-hover-bg);
+}
+
+/* Styles for the main download button */
+.download-btn {
+    background-color: var(--marketplace-download-btn-bg);
+    color: var(--marketplace-download-btn-text);
 }
 
 .download-btn:hover {
-    background-color: #00185A;
-    color: #FFF;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 24, 90, 0.3);
-}
-
-.download-btn:active {
-    transform: translateY(0);
+    background-color: var(--marketplace-download-btn-hover-bg);
+    color: var(--marketplace-download-btn-hover-text);
 }
 
 .no-results {
     text-align: center;
     padding: 3rem 1rem;
-    color: #666;
+    color: var(--marketplace-text-secondary);
 }
 
 .no-results h3 {
     font-size: 1.5rem;
-    color: #00185A;
+    color: var(--marketplace-text-primary);
     margin-bottom: 0.5rem;
 }
 

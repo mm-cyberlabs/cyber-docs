@@ -1,106 +1,15 @@
 import React, { useState } from 'react';
 import Layout from '@theme/Layout';
+import { iconData } from '../../static/data/icon-data.js'; // Import the data
 import '../css/icon-marketplace.css';
 
-// Sample icon data - replace with your actual icon server URLs and metadata
-const iconData = [
-    {
-        id: 'user-profile',
-        name: 'User Profile',
-        url: 'https://cdn.jsdelivr.net/npm/heroicons@2.0.18/24/outline/user.svg',
-        downloadUrl: 'https://cdn.jsdelivr.net/npm/heroicons@2.0.18/24/outline/user.svg',
-        description: 'Clean and modern user profile icon perfect for authentication interfaces and user management systems.',
-        category: 'User Interface',
-        size: '24x24',
-        format: 'SVG'
-    },
-    {
-        id: 'home-house',
-        name: 'Home',
-        url: 'https://cdn.jsdelivr.net/npm/heroicons@2.0.18/24/outline/home.svg',
-        downloadUrl: 'https://cdn.jsdelivr.net/npm/heroicons@2.0.18/24/outline/home.svg',
-        description: 'Simple home icon ideal for navigation menus and dashboard interfaces.',
-        category: 'Navigation',
-        size: '24x24',
-        format: 'SVG'
-    },
-    {
-        id: 'settings-gear',
-        name: 'Settings',
-        url: 'https://cdn.jsdelivr.net/npm/heroicons@2.0.18/24/outline/cog-6-tooth.svg',
-        downloadUrl: 'https://cdn.jsdelivr.net/npm/heroicons@2.0.18/24/outline/cog-6-tooth.svg',
-        description: 'Gear icon representing settings, configuration, and system preferences.',
-        category: 'System',
-        size: '24x24',
-        format: 'SVG'
-    },
-    {
-        id: 'notification-bell',
-        name: 'Notifications',
-        url: 'https://cdn.jsdelivr.net/npm/heroicons@2.0.18/24/outline/bell.svg',
-        downloadUrl: 'https://cdn.jsdelivr.net/npm/heroicons@2.0.18/24/outline/bell.svg',
-        description: 'Bell icon for notifications, alerts, and messaging systems.',
-        category: 'Communication',
-        size: '24x24',
-        format: 'SVG'
-    },
-    {
-        id: 'search-magnify',
-        name: 'Search',
-        url: 'https://cdn.jsdelivr.net/npm/heroicons@2.0.18/24/outline/magnifying-glass.svg',
-        downloadUrl: 'https://cdn.jsdelivr.net/npm/heroicons@2.0.18/24/outline/magnifying-glass.svg',
-        description: 'Magnifying glass icon for search functionality and data exploration.',
-        category: 'Actions',
-        size: '24x24',
-        format: 'SVG'
-    },
-    {
-        id: 'email-mail',
-        name: 'Email',
-        url: 'https://cdn.jsdelivr.net/npm/heroicons@2.0.18/24/outline/envelope.svg',
-        downloadUrl: 'https://cdn.jsdelivr.net/npm/heroicons@2.0.18/24/outline/envelope.svg',
-        description: 'Envelope icon representing email, messages, and communication.',
-        category: 'Communication',
-        size: '24x24',
-        format: 'SVG'
-    },
-    {
-        id: 'document-file',
-        name: 'Document',
-        url: 'https://cdn.jsdelivr.net/npm/heroicons@2.0.18/24/outline/document.svg',
-        downloadUrl: 'https://cdn.jsdelivr.net/npm/heroicons@2.0.18/24/outline/document.svg',
-        description: 'Document icon for files, reports, and content management systems.',
-        category: 'Files',
-        size: '24x24',
-        format: 'SVG'
-    },
-    {
-        id: 'heart-favorite',
-        name: 'Favorite',
-        url: 'https://cdn.jsdelivr.net/npm/heroicons@2.0.18/24/outline/heart.svg',
-        downloadUrl: 'https://cdn.jsdelivr.net/npm/heroicons@2.0.18/24/outline/heart.svg',
-        description: 'Heart icon for favorites, likes, and user preferences.',
-        category: 'Social',
-        size: '24x24',
-        format: 'SVG'
-    },
-    {
-        id: 'calendar-date',
-        name: 'Calendar',
-        url: 'https://cdn.jsdelivr.net/npm/heroicons@2.0.18/24/outline/calendar.svg',
-        downloadUrl: 'https://cdn.jsdelivr.net/npm/heroicons@2.0.18/24/outline/calendar.svg',
-        description: 'Calendar icon for date selection, scheduling, and time management.',
-        category: 'Time',
-        size: '24x24',
-        format: 'SVG'
-    }
-];
-
+// The categories are still generated dynamically from the imported data.
 const categories = ['All', ...new Set(iconData.map(icon => icon.category))];
 
 export default function IconMarketplace() {
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [searchTerm, setSearchTerm] = useState('');
+    const [copiedId, setCopiedId] = useState(null); // To provide feedback on copy
 
     const filteredIcons = iconData.filter(icon => {
         const matchesCategory = selectedCategory === 'All' || icon.category === selectedCategory;
@@ -108,6 +17,75 @@ export default function IconMarketplace() {
             icon.description.toLowerCase().includes(searchTerm.toLowerCase());
         return matchesCategory && matchesSearch;
     });
+
+    const showFeedback = (id) => {
+        setCopiedId(id);
+        setTimeout(() => setCopiedId(null), 2000); // Reset after 2 seconds
+    };
+
+    const handleCopySvg = async (icon) => {
+        try {
+            // First, fetch the SVG content from the URL.
+            const response = await fetch(icon.url);
+            if (!response.ok) {
+                // If the network request fails, we can't proceed.
+                throw new Error(`Failed to fetch SVG: ${response.statusText}`);
+            }
+            const svgText = await response.text();
+
+            // Now, attempt to copy the SVG as a rich image.
+            // This is the ideal scenario, but it's not supported in all browsers (e.g., Firefox).
+            try {
+                const svgBlob = new Blob([svgText], { type: 'image/svg+xml' });
+                await navigator.clipboard.write([
+                    new ClipboardItem({ 'image/svg+xml': svgBlob })
+                ]);
+                showFeedback(`${icon.id}-svg`);
+            } catch (error) {
+                // If copying as an image fails, log a warning and fall back to copying as plain text.
+                console.warn(
+                    'Could not copy SVG as an image directly. This is likely a browser limitation. Falling back to copying as text.',
+                    error
+                );
+                await navigator.clipboard.writeText(svgText);
+                showFeedback(`${icon.id}-svg`);
+            }
+        } catch (error) {
+            // This outer catch will handle network errors or if both copy methods fail.
+            console.error('A critical error occurred during the SVG copy process:', error);
+            alert('Could not copy the SVG icon. Please try again or check the browser console for more details.');
+        }
+    };
+
+    const handleCopyPng = async (icon) => {
+        try {
+            const response = await fetch(icon.url);
+            const svgText = await response.text();
+            const img = new Image();
+            const svgBlob = new Blob([svgText], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(svgBlob);
+
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const [width, height] = icon.size.split('x').map(Number);
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                URL.revokeObjectURL(url);
+                canvas.toBlob(async (pngBlob) => {
+                    await navigator.clipboard.write([
+                        new ClipboardItem({ 'image/png': pngBlob })
+                    ]);
+                    showFeedback(`${icon.id}-png`);
+                }, 'image/png');
+            };
+            img.src = url;
+        } catch (error) {
+            console.error('Failed to copy as PNG:', error);
+            alert('Could not copy as PNG.');
+        }
+    };
 
     const handleDownload = async (icon) => {
         try {
@@ -123,7 +101,6 @@ export default function IconMarketplace() {
             window.URL.revokeObjectURL(url);
         } catch (error) {
             console.error('Download failed:', error);
-            // Fallback: open in new tab
             window.open(icon.downloadUrl, '_blank');
         }
     };
@@ -186,19 +163,34 @@ export default function IconMarketplace() {
 
                                     <div className="icon-info">
                                         <h3 className="icon-name">{icon.name}</h3>
+                                        {/* The description now comes before the meta tags */}
+                                        <p className="icon-description">{icon.description}</p>
                                         <div className="icon-meta">
                                             <span className="icon-category">{icon.category}</span>
                                             <span className="icon-size">{icon.size}</span>
                                             <span className="icon-format">{icon.format}</span>
                                         </div>
-                                        <p className="icon-description">{icon.description}</p>
 
-                                        <button
-                                            className="download-btn"
-                                            onClick={() => handleDownload(icon)}
-                                        >
-                                            Download {icon.format}
-                                        </button>
+                                        <div className="icon-actions">
+                                            <button
+                                                className="copy-btn"
+                                                onClick={() => handleCopySvg(icon)}
+                                            >
+                                                {copiedId === `${icon.id}-svg` ? 'Copied!' : 'Copy SVG'}
+                                            </button>
+                                            <button
+                                                className="copy-btn"
+                                                onClick={() => handleCopyPng(icon)}
+                                            >
+                                                {copiedId === `${icon.id}-png` ? 'Copied!' : 'Copy PNG'}
+                                            </button>
+                                            <button
+                                                className="download-btn"
+                                                onClick={() => handleDownload(icon)}
+                                            >
+                                                Download {icon.format}
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             ))}
