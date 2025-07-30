@@ -1,0 +1,87 @@
+---
+title: Image Download Demo
+description: Demonstration of the ImageDownloadButton component for rendering images with download functionality
+---
+
+import ImageDownloadButton from '@site/src/components/ImageDownloadButton';
+
+# Image Download Button Demo
+
+This component renders PNG or SVG images with an optional download button below the image.
+
+## Example 1: PNG Image with Download Button
+
+<ImageDownloadButton 
+  image="/img/docusaurus.png"
+  size={150}
+  showDownloadButton={true}
+  filename="docusaurus-logo"
+  alt="Docusaurus logo"
+/>
+
+## Example 2: SVG Image with Download Button
+
+<ImageDownloadButton 
+  image="/img/logo.svg"
+  size={120}
+  showDownloadButton={true}
+  filename="site-logo"
+  alt="Site logo"
+/>
+
+## Example 3: Image without Download Button
+
+<ImageDownloadButton 
+  image="/img/docusaurus.png"
+  size={100}
+  showDownloadButton={false}
+  alt="Docusaurus logo without download"
+/>
+
+## Example 4: Large Image
+
+<ImageDownloadButton 
+  image="/img/docusaurus.png"
+  size={300}
+  showDownloadButton={true}
+  filename="large-docusaurus-logo"
+  alt="Large Docusaurus logo"
+/>
+
+---
+
+## Usage in MDX
+
+```jsx
+import ImageDownloadButton from '@site/src/components/ImageDownloadButton';
+
+// PNG image with download button
+<ImageDownloadButton 
+  image="/img/my-image.png"
+  size={200}
+  showDownloadButton={true}
+  filename="my-image"
+  alt="My image description"
+/>
+
+// SVG image without download button
+<ImageDownloadButton 
+  image="/img/my-icon.svg"
+  size={100}
+  showDownloadButton={false}
+  alt="My icon"
+/>
+```
+
+## Component Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `image` | string | **required** | Path to PNG or SVG image |
+| `size` | number | 200 | Size of image in pixels (width and height) |
+| `showDownloadButton` | boolean | true | Whether to show download button below image |
+| `filename` | string | 'image-download' | Name for downloaded file |
+| `className` | string | '' | Additional CSS classes |
+| `alt` | string | 'Downloadable image' | Alt text for accessibility |
+
+The component automatically handles both PNG and SVG images, using direct download for PNG/JPG and canvas conversion for SVG files.

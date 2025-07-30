@@ -1,0 +1,62 @@
+/* Image Download Button Component Styles */
+
+.image-with-download {
+  display: inline-block;
+  text-align: center;
+}
+
+.image-with-download img,
+.image-with-download object {
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 4px;
+  background-color: var(--ifm-background-color);
+  display: block;
+  object-fit: contain;
+}
+
+.image-download-button {
+  background-color: var(--ifm-color-primary);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: 10px;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 4px rgba(0, 24, 90, 0.1);
+}
+
+.image-download-button:hover {
+  background-color: var(--ifm-color-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 24, 90, 0.15);
+}
+
+.image-download-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 24, 90, 0.1);
+}
+
+.image-download-button:focus {
+  outline: 2px solid var(--ifm-color-primary-light);
+  outline-offset: 2px;
+}
+
+/* Dark theme adjustments */
+[data-theme='dark'] .image-with-download img,
+[data-theme='dark'] .image-with-download object {
+  border-color: var(--ifm-color-emphasis-400);
+}
+
+[data-theme='dark'] .image-download-button {
+  box-shadow: 0 2px 4px rgba(77, 136, 229, 0.2);
+}
+
+[data-theme='dark'] .image-download-button:hover {
+  box-shadow: 0 4px 8px rgba(77, 136, 229, 0.3);
+}
