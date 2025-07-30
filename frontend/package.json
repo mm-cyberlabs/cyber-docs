@@ -19,6 +19,7 @@
     "@docusaurus/preset-classic": "3.8.0",
     "@mdx-js/react": "^3.0.0",
     "clsx": "^2.0.0",
+    "html2canvas": "^1.4.1",
     "lucide-react": "^0.525.0",
     "prism-react-renderer": "^2.3.0",
     "react": "^19.0.0",
