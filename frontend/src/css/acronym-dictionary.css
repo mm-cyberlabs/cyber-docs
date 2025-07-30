@@ -1,0 +1,378 @@
+/* Acronym Dictionary Styles - Docusaurus Integration - FIXED */
+:root {
+    --acronym-main-color: #00185A;
+    --acronym-accent-color: #FDB92C;
+    --acronym-primary-color: #0066CC;
+    --acronym-component-bg: #E6E6E6;
+    --acronym-main-bg: #FFF;
+}
+
+/* Container */
+.acronym-dictionary-container {
+    max-width: 100%;
+    margin: 0;
+    padding: 1rem;
+    font-family: var(--ifm-font-family-base);
+    background-color: transparent;
+    color: var(--ifm-font-color-base);
+}
+
+/* Header */
+.acronym-dictionary-header {
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.acronym-dictionary-header-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.acronym-dictionary-title {
+    color: var(--ifm-font-color-base);
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.acronym-dictionary-subtitle {
+    color: var(--ifm-color-emphasis-700);
+    font-size: 1rem;
+    margin: 0;
+    max-width: 100%;
+}
+
+/* Search Controls */
+.acronym-dictionary-controls {
+    background: linear-gradient(135deg, var(--acronym-main-color) 0%, var(--acronym-primary-color) 100%);
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 16px rgba(0, 24, 90, 0.2);
+}
+
+.acronym-dictionary-controls-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    align-items: end;
+}
+
+.acronym-dictionary-input-group {
+    position: relative;
+}
+
+.acronym-dictionary-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #ffffff;
+    font-size: 0.9rem;
+}
+
+.acronym-dictionary-input-wrapper {
+    position: relative;
+}
+
+.acronym-dictionary-input-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #666;
+    z-index: 1;
+}
+
+.acronym-dictionary-search-input,
+.acronym-dictionary-select {
+    width: 100%;
+    padding: 12px 12px 12px 40px;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    background-color: #ffffff;
+    color: #333;
+    box-sizing: border-box;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.acronym-dictionary-select {
+    cursor: pointer;
+    min-width: 100%;
+}
+
+.acronym-dictionary-results-info {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
+}
+
+.acronym-dictionary-search-term {
+    color: var(--acronym-accent-color);
+    margin-left: 0.5rem;
+    font-weight: 600;
+}
+
+.acronym-dictionary-sort-info {
+    color: rgba(255, 255, 255, 0.7);
+    margin-left: 1rem;
+    font-size: 0.85rem;
+}
+
+/* Table Container - FIXED WITH HIGHER SPECIFICITY */
+.acronym-dictionary-table-container {
+    background-color: var(--ifm-card-background-color, #ffffff) !important;
+    border: 2px solid var(--ifm-color-emphasis-300) !important;
+    border-radius: 8px !important;
+    overflow-x: auto;
+    box-shadow: var(--ifm-global-shadow-lw) !important;
+    margin-bottom: 1.5rem;
+    width: 100%;
+}
+
+/* Table - OVERRIDE DOCUSAURUS DEFAULTS */
+.acronym-dictionary-container .acronym-dictionary-table {
+    width: 100% !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    font-size: 0.9rem !important;
+    margin: 0 !important;
+    table-layout: auto !important;
+    background-color: transparent !important;
+}
+
+/* Table Header - FORCE STYLES */
+.acronym-dictionary-container .acronym-dictionary-th {
+    background-color: #00185A !important;
+    color: #ffffff !important;
+    padding: 0.875rem !important;
+    text-align: left !important;
+    font-weight: 600 !important;
+    border: none !important;
+    border-bottom: 2px solid var(--ifm-color-emphasis-400) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.2) !important;
+    cursor: pointer !important;
+    user-select: none !important;
+    transition: background-color 0.2s ease !important;
+    font-size: 0.85rem !important;
+    white-space: nowrap !important;
+    position: relative !important;
+}
+
+.acronym-dictionary-container .acronym-dictionary-th:last-child {
+    border-right: none !important;
+}
+
+.acronym-dictionary-container .acronym-dictionary-th:hover {
+    background-color: #0066CC !important;
+}
+
+.acronym-dictionary-container .acronym-dictionary-th--active {
+    background-color: #0066CC !important;
+}
+
+.acronym-dictionary-th-content {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    justify-content: flex-start !important;
+}
+
+.acronym-dictionary-th--acronym {
+    width: 15% !important;
+}
+
+.acronym-dictionary-th--definition {
+    width: 60% !important;
+}
+
+.acronym-dictionary-th--category {
+    width: 25% !important;
+}
+
+/* Table Body - OVERRIDE DOCUSAURUS */
+.acronym-dictionary-container .acronym-dictionary-td {
+    padding: 0.875rem !important;
+    border: none !important;
+    border-bottom: 1px solid var(--ifm-color-emphasis-300) !important;
+    border-right: 1px solid var(--ifm-color-emphasis-300) !important;
+    vertical-align: top !important;
+    font-size: 0.9rem !important;
+    line-height: 1.4 !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    background-color: transparent !important;
+}
+
+.acronym-dictionary-container .acronym-dictionary-td:last-child {
+    border-right: none !important;
+}
+
+.acronym-dictionary-container .acronym-dictionary-td--acronym {
+    font-weight: 700 !important;
+    font-size: 1rem !important;
+    color: var(--ifm-color-primary) !important;
+}
+
+/* Table Rows - FORCE BACKGROUND COLORS */
+.acronym-dictionary-container .acronym-dictionary-tr {
+    transition: background-color 0.2s ease !important;
+    background-color: transparent !important;
+}
+
+.acronym-dictionary-container .acronym-dictionary-tr:nth-child(even) {
+    background-color: var(--ifm-color-emphasis-100, #f8f9fa) !important;
+}
+
+.acronym-dictionary-container .acronym-dictionary-tr:nth-child(odd) {
+    background-color: var(--ifm-card-background-color, #ffffff) !important;
+}
+
+.acronym-dictionary-container .acronym-dictionary-tr:hover {
+    background-color: var(--ifm-color-primary-lightest, #e3f2fd) !important;
+}
+
+.acronym-dictionary-container .acronym-dictionary-tr:hover .acronym-dictionary-td {
+    background-color: transparent !important;
+}
+
+/* Category Badge */
+.acronym-dictionary-category-badge {
+    color: #fff !important;
+    padding: 0.2rem 0.5rem !important;
+    border-radius: 4px !important;
+    font-size: 0.7rem !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    display: inline-block !important;
+    white-space: nowrap !important;
+}
+
+.acronym-dictionary-category-badge--development { background-color: #007acc !important; }
+.acronym-dictionary-category-badge--data { background-color: #2e8555 !important; }
+.acronym-dictionary-category-badge--security { background-color: #d93025 !important; }
+.acronym-dictionary-category-badge--network { background-color: #5e4ee1 !important; }
+.acronym-dictionary-category-badge--frontend { background-color: #ea580c !important; }
+.acronym-dictionary-category-badge--architecture { background-color: #4b5563 !important; }
+.acronym-dictionary-category-badge--database { background-color: #0891b2 !important; }
+.acronym-dictionary-category-badge--cloud { background-color: #0ea5e9 !important; }
+.acronym-dictionary-category-badge--devops { background-color: #6d28d9 !important; }
+.acronym-dictionary-category-badge--business { background-color: #64748b !important; }
+
+/* Search Highlighting */
+.acronym-dictionary-highlight {
+    background-color: var(--ifm-color-warning-light, #ffd23f) !important;
+    color: var(--ifm-color-emphasis-900, #000) !important;
+    padding: 0.1em 0.2em !important;
+    border-radius: 3px !important;
+}
+
+/* Footer */
+.acronym-dictionary-footer {
+    text-align: center;
+    margin-top: 2rem;
+    padding: 1rem;
+    font-size: 0.85rem;
+    color: var(--ifm-color-emphasis-600);
+    border-top: 1px solid var(--ifm-color-emphasis-200);
+}
+
+.acronym-dictionary-footer-tip {
+    margin-bottom: 0.5rem;
+}
+
+.acronym-dictionary-footer-contact {
+    margin: 0;
+}
+
+/* No Results State */
+.acronym-dictionary-no-results {
+    text-align: center;
+    padding: 3rem 1rem;
+    border: 2px dashed var(--ifm-color-emphasis-300);
+    border-radius: 8px;
+    background-color: var(--ifm-color-emphasis-100);
+}
+
+.acronym-dictionary-no-results-icon {
+    margin-bottom: 1rem;
+}
+
+.acronym-dictionary-no-results-title {
+    margin-bottom: 0.5rem;
+    font-size: 1.5rem;
+    color: var(--ifm-font-color-base);
+}
+
+.acronym-dictionary-no-results-text {
+    margin: 0;
+    color: var(--ifm-color-emphasis-700);
+}
+
+/* ========================================================================== */
+/*  Responsive Styles for Mobile (Card Layout)                              */
+/* ========================================================================== */
+
+@media (max-width: 768px) {
+    .acronym-dictionary-table-container {
+        overflow-x: hidden !important;
+        border: none !important;
+        box-shadow: none !important;
+        background-color: transparent !important;
+    }
+
+    .acronym-dictionary-container .acronym-dictionary-table thead {
+        /* Hide the table header on mobile */
+        display: none !important;
+    }
+
+    .acronym-dictionary-container .acronym-dictionary-table,
+    .acronym-dictionary-container .acronym-dictionary-table tbody,
+    .acronym-dictionary-container .acronym-dictionary-tr {
+        display: block !important;
+        width: 100% !important;
+    }
+
+    .acronym-dictionary-container .acronym-dictionary-tr {
+        margin-bottom: 1.5rem !important;
+        border: 1px solid var(--ifm-color-emphasis-300) !important;
+        border-radius: 8px !important;
+        box-shadow: var(--ifm-global-shadow-lw) !important;
+        background-color: var(--ifm-card-background-color) !important;
+        padding: 1rem !important;
+    }
+
+    .acronym-dictionary-container .acronym-dictionary-td {
+        display: block !important;
+        width: 100% !important;
+        padding: 0.75rem 0 !important;
+        border: none !important;
+        border-bottom: 1px solid var(--ifm-color-emphasis-200) !important;
+        text-align: left !important;
+    }
+
+    .acronym-dictionary-container .acronym-dictionary-tr .acronym-dictionary-td:last-child {
+        border-bottom: none !important;
+    }
+
+    .acronym-dictionary-container .acronym-dictionary-td--acronym {
+        padding-top: 0 !important;
+        font-size: 1.2rem !important;
+    }
+
+    /* This is the magic part: add labels before the content */
+    .acronym-dictionary-container .acronym-dictionary-td:not(.acronym-dictionary-td--acronym)::before {
+        content: attr(data-label) !important;
+        display: block !important;
+        font-weight: 600 !important;
+        font-size: 0.75rem !important;
+        text-transform: uppercase !important;
+        color: var(--ifm-color-emphasis-600) !important;
+        margin-bottom: 0.25rem !important;
+    }
+}
